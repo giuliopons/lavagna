@@ -28,6 +28,17 @@ export default defineConfig(({ mode }) => {
       ? [{
           name: 'pwa-head',
           transformIndexHtml: () => PWA_HEAD.map(([tag, attrs]) => ({ tag, attrs, injectTo: 'head' })),
+        }, {
+          // Script classico e niente crossorigin: così la cartella si apre anche dal disco (file://),
+          // dove i moduli e le richieste CORS sono bloccati
+          name: 'classic-script',
+          apply: 'build',
+          transformIndexHtml: {
+            order: 'post',
+            handler: html => html
+              .replace(/<script type="module" crossorigin/g, '<script defer')
+              .replace(/(<link rel="stylesheet") crossorigin/g, '$1'),
+          },
         }]
       : [viteSingleFile()],
     build: {
@@ -35,7 +46,10 @@ export default defineConfig(({ mode }) => {
       emptyOutDir: true,
       target: 'es2022',
       assetsInlineLimit: pwa ? 0 : 100_000_000,
-      rollupOptions: pwa ? {} : { output: { format: 'iife' } },
+      // Con lo script classico il CSS finirebbe dentro il JS: resta in un file a parte, caricato subito
+      cssCodeSplit: !pwa,
+      // Uno script classico in un solo file, sia nel file unico sia nella cartella pwa
+      rollupOptions: { output: { format: 'iife' } },
     },
   };
 });

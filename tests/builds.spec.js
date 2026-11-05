@@ -18,6 +18,21 @@ test('copia locale aperta dal disco', async ({ page }) => {
   noErrors(errors);
 });
 
+test('cartella pwa aperta dal disco', async ({ page }) => {
+  const errors = [];
+  page.on('pageerror', e => errors.push(e.message));
+  page.on('console', m => { if (m.type() === 'error') errors.push(m.text()); });
+  const html = readFileSync('dist/pwa/index.html', 'utf8');
+  expect(html).not.toMatch(/type="module"|crossorigin/);
+  await page.goto('file://' + resolve('dist/pwa/index.html'));
+  await page.waitForTimeout(200);
+  expect(await page.title()).toMatch(/^Disegno .+ – Lavagna a mano libera$/);
+  await line(page, 200, 200, 500, 200);
+  expect(await ink(page, 200, 190, 300, 20)).toBeGreaterThan(200);
+  expect(await page.evaluate(async () => { await document.fonts.ready; return document.fonts.check('500 16px "Familjen Grotesk"'); })).toBe(true);
+  noErrors(errors);
+});
+
 test('pagina pubblicata: funziona dentro l\'intestazione del visualizzatore', async ({ page }) => {
   const source = readFileSync('dist/artifact.html', 'utf8');
   expect(source.startsWith('<title>Lavagna a mano libera</title>')).toBe(true);

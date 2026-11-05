@@ -23,7 +23,7 @@ Se il browser di Playwright è già installato altrove: `PW_CHROMIUM=/percorso/c
 |---|---|
 | `lavagna-a-mano-libera.html` | Copia locale, tutto in un file, font compresi |
 | `artifact.html` | Pagina da pubblicare su Claude: senza doctype, `head` e `body`, che aggiunge il visualizzatore |
-| `pwa/` | Cartella da caricare sul sito. La versione del service worker si calcola dai file |
+| `pwa/` | Cartella da caricare sul sito; si apre anche dal disco (script classico, senza `crossorigin`). La versione del service worker si calcola dai file |
 
 Pagine pubblicate: lavagna `https://claude.ai/artifact/8BaEEUjh9kPeduqHzHkdXT` (dichiara la capability `downloads`).
 
