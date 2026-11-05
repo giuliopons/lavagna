@@ -1,0 +1,73 @@
+<title>Copia della lavagna</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<style>
+/* Layout: una colonna con due passaggi da seguire in ordine, ognuno con il suo pulsante di copia. */
+:root { --bg:#f6f7f9; --fg:#20252c; --muted:#5d6672; --line:#d5dbe3; --panel:#ffffff; --accent:#1f5fd6; --on-accent:#ffffff; --ok:#14853f;
+  --font:"Segoe UI",system-ui,-apple-system,sans-serif; --mono:ui-monospace,Consolas,monospace; }
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) { --bg:#171a1f; --fg:#e8ecf1; --muted:#a3adb9; --line:#3e4651; --panel:#20252c; --accent:#7fb4ff; --on-accent:#14181d; --ok:#6fd695; color-scheme:dark } }
+:root[data-theme="dark"] { --bg:#171a1f; --fg:#e8ecf1; --muted:#a3adb9; --line:#3e4651; --panel:#20252c; --accent:#7fb4ff; --on-accent:#14181d; --ok:#6fd695; color-scheme:dark }
+body { background:var(--bg); color:var(--fg); font-family:var(--font); font-size:1rem; line-height:1.5;
+  padding-left:max(16px,env(safe-area-inset-left,0px)); padding-right:max(16px,env(safe-area-inset-right,0px)); padding-block:32px; }
+main { max-width:40rem; margin-inline:auto; display:grid; gap:20px; }
+h1 { font-size:1.5rem; margin:0; text-wrap:balance; }
+p { margin:0; }
+.lead { color:var(--muted); }
+section { display:grid; gap:12px; padding:18px; background:var(--panel); border:1px solid var(--line); border-radius:10px; min-width:0; }
+h2 { font-size:1.0625rem; margin:0; }
+ol { margin:0; padding-left:1.3em; display:grid; gap:4px; }
+code { font-family:var(--mono); font-size:.9em; overflow-wrap:anywhere; }
+.row { display:flex; flex-wrap:wrap; align-items:center; gap:12px; }
+button { font:inherit; font-weight:600; padding:9px 16px; color:var(--on-accent); background:var(--accent); border:0; border-radius:8px; cursor:pointer; }
+button:focus-visible, textarea:focus-visible { outline:2px solid var(--accent); outline-offset:2px; }
+.status { color:var(--ok); font-size:.9375rem; }
+.status.warn { color:var(--muted); }
+textarea { display:block; width:100%; box-sizing:border-box; height:5.5rem; padding:8px; resize:vertical; font-family:var(--mono); font-size:.75rem; color:var(--muted); background:var(--bg); border:1px solid var(--line); border-radius:6px; white-space:pre; overflow:auto; }
+</style>
+<main>
+  <h1>Copia la lavagna sul tuo computer</h1>
+  <p class="lead">Serve quando il download non parte. Crei i due file con il Blocco note e li salvi nella stessa cartella.</p>
+  <section>
+    <h2>1. La lavagna</h2>
+    <ol>
+      <li>Premi il pulsante e apri il Blocco note.</li>
+      <li>Incolla con Ctrl+V, poi scegli Salva con nome.</li>
+      <li>Come nome scrivi <code>lavagna-a-mano-libera.html</code>, come tipo "Tutti i file", come codifica UTF-8.</li>
+    </ol>
+    <div class="row"><button type="button" id="copyHtml">Copia la lavagna</button><span class="status" id="stHtml" role="status"></span></div>
+    <textarea id="txHtml" readonly spellcheck="false" aria-label="Codice della lavagna"></textarea>
+  </section>
+  <section>
+    <h2>2. Il file di avvio</h2>
+    <ol>
+      <li>Premi il pulsante e apri un nuovo Blocco note.</li>
+      <li>Incolla con Ctrl+V, poi scegli Salva con nome.</li>
+      <li>Come nome scrivi <code>avvia-lavagna.bat</code>, come tipo "Tutti i file".</li>
+    </ol>
+    <div class="row"><button type="button" id="copyBat">Copia il file di avvio</button><span class="status" id="stBat" role="status"></span></div>
+    <textarea id="txBat" readonly spellcheck="false" aria-label="Codice del file di avvio"></textarea>
+  </section>
+  <p class="lead">Se il pulsante non copia, clicca nel riquadro, premi Ctrl+A e poi Ctrl+C.</p>
+</main>
+<script type="application/json" id="data">__DATA__</script>
+<script>
+const data = JSON.parse(document.getElementById('data').textContent);
+const wire = (btn, tx, st, text) => {
+  const b = document.getElementById(btn), t = document.getElementById(tx), s = document.getElementById(st);
+  t.value = text;
+  t.addEventListener('focus', () => t.select());
+  b.addEventListener('click', async () => {
+    try {
+      await navigator.clipboard.writeText(text);
+      s.className = 'status';
+      s.textContent = 'Copiato. Ora incollalo nel Blocco note.';
+    } catch {
+      t.focus();
+      t.select();
+      s.className = 'status warn';
+      s.textContent = 'Copia automatica bloccata. Il testo \u00e8 selezionato: premi Ctrl+C.';
+    }
+  });
+};
+wire('copyHtml', 'txHtml', 'stHtml', data.html);
+wire('copyBat', 'txBat', 'stBat', data.bat);
+</script>
