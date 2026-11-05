@@ -8,6 +8,11 @@ Dopo aver provato diversi tool per usare una Whiteboard per appunti, sketch, lez
 
 Eccolo qui. E' uno strumento "lavagna" che funziona nel browser, sia da locale perché la cartella 'dist' può essere anche usata in modo statico direttamente dal PC, sia su un server (non occorre Node). Oppre puoi usarlo dal mio sito https://www.barattalo.it/lavagna
 
-<img width="50%" alt="{50363133-79E9-4F85-A280-F872920C6BAB}" src="https://github.com/user-attachments/assets/e063bc61-9dfc-4fbe-a019-cacf73a9bd5f" />
-
 Se hai esportato i tuoi lavori dalla lavagna di Microsoft in formato PDF puoi anche reimportarli qui e continuare a lavorarci.
+
+# ISTRUZIONI
+
+<img width="1243" height="59" alt="{95AF09F9-7A00-492B-8623-D0FB80A28356}" src="https://github.com/user-attachments/assets/563d3d2d-8ea0-4f58-9919-3ff620521dfb" />
+
+
+
