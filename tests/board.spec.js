@@ -361,9 +361,39 @@ test('pannello del foglio: nome nel titolo e nel file, statistiche', async ({ pa
   await page.waitForTimeout(500);
   await expect(page).toHaveTitle('Riunione: piano – Lavagna a mano libera');
 
+  // aperto, si aggiorna da solo ogni secondo
   await page.keyboard.press('i');
+  await page.evaluate(() => { document.getElementById('statsTotN').textContent = 'x'; });
+  await expect(page.locator('#statsTotN')).toHaveText('2', { timeout: 2500 });
   await page.keyboard.press('Escape');
   await expect(page.locator('#panel')).toBeHidden();
+  noErrors(errors);
+});
+
+test('impostazioni: la bassa latenza si cambia dal pannello e resta salvata', async ({ page }) => {
+  const errors = await openBoard(page);
+  await expect(page.locator('#tray #lowLat')).toHaveCount(0);
+  await page.click('#info');
+  const sw = page.locator('#panel #lowLat');
+  await expect(sw).toBeChecked();
+  await page.click('label[for=lowLat]');
+  await expect(sw).not.toBeChecked();
+  await expect(page.locator('#lowLatNote')).toContainText('Accendila');
+  // la barra spaziatrice sull'interruttore lo cambia, senza spostare il foglio
+  await sw.focus();
+  await page.keyboard.press('Space');
+  await expect(sw).toBeChecked();
+  await expect(page.locator('#board')).not.toHaveClass(/hand/);
+  await page.keyboard.press('Space');
+  await expect(sw).not.toBeChecked();
+  await page.reload();
+  await page.waitForTimeout(300);
+  await page.keyboard.press('i');
+  await expect(page.locator('#lowLat')).not.toBeChecked();
+  // si disegna ancora
+  await page.keyboard.press('Escape');
+  await line(page, 200, 300, 500, 300);
+  expect(await ink(page, 200, 290, 300, 20)).toBeGreaterThan(200);
   noErrors(errors);
 });
 

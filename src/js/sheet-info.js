@@ -10,6 +10,16 @@ const APP_TITLE = 'Lavagna a mano libera';
 const KINDS = [['pen', 'Tratti di penna'], ['hl', 'Evidenziature'], ['tx', 'Testi'], ['im', 'Immagini'], ['sh', 'Forme importate']];
 
 let updateTimer = 0;
+let tickTimer = 0;
+
+// Con il pannello aperto le statistiche si aggiornano ogni secondo. Il calcolo costa circa 17 ms
+// su un foglio da 800 oggetti: si salta mentre è in corso un gesto, per non far scattare il tratto,
+// e si aspetta un momento libero del browser
+const idle = window.requestIdleCallback ? f => requestIdleCallback(f, { timeout: 500 }) : f => setTimeout(f, 0);
+function tick() {
+  if (!isPanelOpen() || S.gest || document.hidden) return;
+  idle(() => { if (isPanelOpen() && !S.gest) updatePanel(); });
+}
 
 const z2 = n => String(n).padStart(2, '0');
 
@@ -35,7 +45,11 @@ export const isPanelOpen = () => !$('panel').hidden;
 export function togglePanel(on = !isPanelOpen()) {
   $('panel').hidden = !on;
   $('info').setAttribute('aria-pressed', on);
-  if (on) updatePanel();
+  clearInterval(tickTimer);
+  if (on) {
+    updatePanel();
+    tickTimer = setInterval(tick, 1000);
+  }
 }
 
 export function updatePanelSoon() {

@@ -21,7 +21,7 @@ Se hai esportato i tuoi lavori dalla lavagna di Microsoft in formato PDF puoi an
 - **Foglio infinito** con zoom, schermo intero e vista pulita per gli screenshot.
 - **Salvataggio automatico** nel browser e **salvataggio su file** `.json`.
 - **Import dei PDF** esportati dalla lavagna Microsoft: tratti, testi e immagini tornano modificabili.
-- **Pannello del foglio** con il nome del file e le statistiche.
+- **Pannello delle impostazioni** con il nome del file, la bassa latenza e le statistiche.
 - Funziona **senza internet** e si può installare come app (PWA).
 
 # ISTRUZIONI
@@ -64,7 +64,7 @@ Colore e spessore si scelgono nel vassoio in basso.
 | Ctrl+C / Ctrl+X / Ctrl+V | Copia / Taglia / Incolla, anche le immagini |
 | Canc | Elimina la selezione |
 | Ctrl+A | Seleziona tutto, con lo strumento selezione |
-| I | Nome del foglio e statistiche |
+| I | Impostazioni: nome del foglio, bassa latenza, statistiche |
 | F | Schermo intero |
 | O | Vista pulita, Esc per uscire |
 | Esc | Toglie la selezione o chiude il pannello |

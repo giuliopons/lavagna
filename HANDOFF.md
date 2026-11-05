@@ -41,13 +41,14 @@ La stessa gomma è ripetuta in ogni oggetto toccato: nel foglio reale 11.070 pun
 
 ### 4. Nome del file e statistiche (fatto)
 
-Pannello in alto a destra, dal pulsante con le barre nel vassoio o dal tasto I; Esc lo chiude. In cima c'è il nome del file, poi le statistiche: quantità e peso per tipo, punti, passate di gomma, area usata, tempo dell'ultimo ridisegno completo dello schermo (misurato in `ensureStep`).
+Pannello in alto a destra, dall'ingranaggio nel vassoio o dal tasto I; Esc lo chiude. In cima c'è il nome del file, poi le statistiche: quantità e peso per tipo, punti, passate di gomma, area usata, tempo dell'ultimo ridisegno completo dello schermo (misurato in `ensureStep`).
 
 - Un nome vuoto diventa `Disegno gg/mm/aaaa hh:mm`. Il titolo della pagina è `<nome> – Lavagna a mano libera`.
 - Nel nome del file `:` diventa `.` e `/ \ * ? " < > |` diventano `-`: Windows non li accetta.
 - Il nome è salvato nel file (campo `name`, `version` resta 1) e in IndexedDB. Apri prende il nome dal file aperto; Annulla lo ripristina.
 - Con la finestra di scelta, cambiare nome fa scegliere di nuovo il file al Salva successivo; un nome diverso scelto nella finestra diventa il nome del foglio.
 - Pulisci non cambia il nome.
+- Con il pannello aperto le statistiche si aggiornano ogni secondo (circa 17 ms sul foglio reale), saltando i gesti in corso e aspettando `requestIdleCallback`.
 - Da verificare a mano: la finestra di scelta del file in Vivaldi.
 
 ### 4b. Import da PDF e immagini (fatto)
@@ -73,9 +74,9 @@ Un terzo dei punti dista meno di 1 px dal precedente. Con Douglas-Peucker a 0,25
 
 Il foglio reale ha un'immagine da 714×1298 mostrata a 210×382, che pesa 1,8 MB. Ridurla alleggerisce file e memoria, non il disegno, e toglie dettaglio a zoom alti. Solo come opzione.
 
-### 8. Pulsante della bassa latenza
+### 8. Pulsante della bassa latenza (fatto)
 
-Proposta fatta all'utente, senza risposta: togliere il lampo dal vassoio e lasciarlo su un tasto, indicato nelle istruzioni. La bassa latenza resta attiva di default.
+Il lampo non è più nel vassoio: la bassa latenza è un interruttore nel pannello delle impostazioni (ingranaggio, tasto I), con una nota che dice se è attiva o se il browser non la offre. Resta attiva di default e la scelta si salva in `lavagna-prefs`.
 
 ### 9. Multilingua (priorità bassa)
 

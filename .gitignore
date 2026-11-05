@@ -1,4 +1,4 @@
 node_modules/
-dist/bench/
 test-results/
 playwright-report/
+temp.txt

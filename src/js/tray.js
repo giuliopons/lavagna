@@ -8,7 +8,6 @@ import { makeInk } from './live.js';
 import { clearSel } from './selection.js';
 import { INK, MARK, S, savePrefs, tools } from './state.js';
 import { commitEdit, styleEditor } from './text-editor.js';
-import { toast } from './toast.js';
 
 const colorsEl = $('colors');
 
@@ -106,13 +105,15 @@ export function syncButtons() {
   $('clear').disabled = !S.ops.length;
 }
 
-/* Bassa latenza */
+/* Bassa latenza: interruttore nel pannello delle impostazioni */
 const lowBtn = $('lowLat');
 
 export function syncLow() {
   const on = !!S.inkCtx.getContextAttributes?.().desynchronized;
-  lowBtn.setAttribute('aria-pressed', on);
-  lowBtn.title = on ? 'Bassa latenza attiva. Spegnila se vedi sfarfallii.' : 'Bassa latenza spenta. Accendila per un tratto più reattivo.';
+  lowBtn.checked = on;
+  $('lowLatNote').textContent = on
+    ? 'Il tratto segue la penna più da vicino. Spegnila se vedi sfarfallii.'
+    : S.lowLatency ? 'Questo browser non la offre.' : 'Accendila per un tratto più reattivo.';
 }
 
 export function initTray() {
@@ -129,13 +130,10 @@ export function initTray() {
   $('undo').addEventListener('click', undo);
   $('redo').addEventListener('click', redo);
   $('clear').addEventListener('click', clearBoard);
-  lowBtn.addEventListener('click', () => {
-    S.lowLatency = !S.lowLatency;
+  lowBtn.addEventListener('change', () => {
+    S.lowLatency = lowBtn.checked;
     makeInk();
     syncLow();
     savePrefs();
-    const on = !!S.inkCtx.getContextAttributes?.().desynchronized;
-    if (S.lowLatency && !on) toast('Questo browser non offre la bassa latenza.');
-    else toast(on ? 'Bassa latenza attiva.' : 'Bassa latenza spenta.');
   });
 }

@@ -48,9 +48,9 @@ La stessa cartella si apre anche dal disco con doppio clic: per questo lo script
 | `pdf-read.js` | Lettore PDF minimo: oggetti, flussi FlateDecode, pagine |
 | `pdf-import.js` | Import dei PDF della lavagna Microsoft: forme `sh`, testi, immagini |
 | `storage.js` | Salvataggio automatico in IndexedDB |
-| `tray.js` | Vassoio: strumenti, colori, spessore, bassa latenza |
+| `tray.js` | Vassoio: strumenti, colori, spessore; interruttore della bassa latenza |
 | `view-modes.js` | Schermo intero e vista pulita |
-| `sheet-info.js` | Pannello del foglio (tasto I): nome del file, titolo della pagina, statistiche |
+| `sheet-info.js` | Pannello delle impostazioni (ingranaggio o tasto I): nome del file, titolo della pagina, bassa latenza, statistiche |
 | `keyboard.js` | Scorciatoie |
 | `toast.js` | Messaggi brevi |
 | `debug.js` | Registro eventi sul tasto D, solo con `npm run dev` |
