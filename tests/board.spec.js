@@ -230,6 +230,78 @@ test('selezione: la maniglia ingrandisce e rimpicciolisce, Annulla torna indietr
   noErrors(errors);
 });
 
+test('selezione: l\'anello attorno alla maniglia ruota, anche i testi', async ({ page }, info) => {
+  const errors = await openBoard(page);
+  await line(page, 300, 300, 500, 300);
+  await page.keyboard.press('t');
+  await page.mouse.click(330, 340);
+  await page.keyboard.type('Ruota');
+  await page.keyboard.press('Control+Enter');
+  await page.keyboard.press('v');
+  await line(page, 270, 270, 560, 390);
+  const box = await rect(page, 'selBox');
+  expect(await page.locator('#selRotate').evaluate(e => getComputedStyle(e).cursor)).toContain('url(');
+
+  // la freccia del cursore dipende dal lato: a destra del tondo sale, sotto scende
+  const hd = await rect(page, 'selHandle');
+  const ring = page.locator('#selRotate');
+  await page.mouse.move(hd.x + hd.w / 2, hd.y + hd.h / 2 + 17);
+  await expect(ring).toHaveClass(/below/);
+  await page.mouse.move(hd.x + hd.w / 2 + 17, hd.y + hd.h / 2);
+  await expect(ring).not.toHaveClass(/below/);
+
+  // si preme sull'anello, fuori dal tondo, e si gira di 90° in senso orario attorno al centro
+  const cx = box.x + box.w / 2, cy = box.y + box.h / 2;
+  const px = hd.x + hd.w / 2 + 17, py = hd.y + hd.h / 2;
+  const vx = px - cx, vy = py - cy;
+  await page.mouse.move(px, py);
+  await page.mouse.down();
+  for (let i = 1; i <= 12; i++) {
+    const a = Math.PI / 2 * i / 12, c = Math.cos(a), s = Math.sin(a);
+    await page.mouse.move(cx + vx * c - vy * s, cy + vx * s + vy * c);
+  }
+  await expect(page.locator('#selFloat')).toHaveCount(1);
+  await expect(page.locator('#board')).toHaveClass(/rotating/);
+  await page.mouse.up();
+  await page.waitForTimeout(80);
+  await expect(page.locator('#selFloat')).toHaveCount(0);
+  await expect(page.locator('#board')).not.toHaveClass(/rotating/);
+
+  // la linea orizzontale ora è verticale, con lo stesso centro
+  const lx = cx - (300 - cy), ly0 = cy + (300 - cx), ly1 = cy + (500 - cx);
+  expect(await ink(page, lx - 6, Math.min(ly0, ly1) + 20, 12, Math.abs(ly1 - ly0) - 40)).toBeGreaterThan(200);
+  expect(await ink(page, 440, 294, 50, 12)).toBe(0);
+  const turned = await rect(page, 'selBox');
+  expect(Math.abs(turned.w - box.h)).toBeLessThan(12);
+  expect(Math.abs(turned.h - box.w)).toBeLessThan(12);
+
+  // il testo conserva l'angolo nel file salvato
+  await page.keyboard.press('Escape');
+  const [download] = await Promise.all([page.waitForEvent('download'), page.click('#save')]);
+  const file = info.outputPath('ruotato.json');
+  await download.saveAs(file);
+  const doc = JSON.parse(readFileSync(file, 'utf8'));
+  expect(doc.version).toBe(2);
+  const tx = doc.ops.find(o => o.k === 'tx');
+  expect(tx.r).toBeCloseTo(Math.PI / 2, 1);
+
+  // un clic sul testo ruotato lo seleziona: il riquadro è più alto che largo
+  const rot = (x, y) => [cx - (y - cy), cy + (x - cx)];
+  const [qx, qy] = rot(350, 340);
+  await page.mouse.click(qx, qy);
+  await page.waitForTimeout(40);
+  const sel = await rect(page, 'selBox');
+  expect(sel).not.toBeNull();
+  expect(sel.h).toBeGreaterThan(sel.w);
+
+  // Annulla raddrizza tutto
+  await page.keyboard.press('Escape');
+  await page.keyboard.press('Control+z');
+  await page.waitForTimeout(80);
+  expect(await ink(page, 440, 294, 50, 12)).toBeGreaterThan(60);
+  noErrors(errors);
+});
+
 test('copia, incolla e taglia con la tastiera', async ({ page, context }) => {
   await context.grantPermissions(['clipboard-read', 'clipboard-write']);
   const errors = await openBoard(page);

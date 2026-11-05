@@ -1,6 +1,7 @@
 // Misura e disegno del testo sul canvas.
 
 import { FONT } from './state.js';
+import { boxBB } from './stroke.js';
 
 const textFont = s => `500 ${s}px ${FONT}`;
 
@@ -22,9 +23,12 @@ export function textWidth(t, s) {
   return t.split('\n').reduce((w, l) => Math.max(w, measure.measureText(l).width), 0);
 }
 
+// Larghezza e altezza del testo non ruotato
+export const textBox = op => [textWidth(op.t, op.s), op.t.split('\n').length * lineH(op.s)];
+
 export function textBB(op) {
-  const pad = op.s * .3 + 2;
-  return [op.x - pad, op.y - pad, op.x + textWidth(op.t, op.s) + pad, op.y + op.t.split('\n').length * lineH(op.s) + pad];
+  const [w, h] = textBox(op);
+  return boxBB(op.x, op.y, w, h, op.r, op.s * .3 + 2);
 }
 
 export function drawText(ctx, op) {
@@ -32,5 +36,13 @@ export function drawText(ctx, op) {
   ctx.fillStyle = op.c;
   ctx.textBaseline = 'alphabetic';
   const base = textMetrics(op.s).base;
-  op.t.split('\n').forEach((l, i) => ctx.fillText(l, op.x, op.y + i * lineH(op.s) + base));
+  let x = op.x, y = op.y;
+  if (op.r) {
+    ctx.save();
+    ctx.translate(x, y);
+    ctx.rotate(op.r);
+    x = y = 0;
+  }
+  op.t.split('\n').forEach((l, i) => ctx.fillText(l, x, y + i * lineH(op.s) + base));
+  if (op.r) ctx.restore();
 }

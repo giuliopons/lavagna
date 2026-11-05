@@ -68,6 +68,14 @@ La selezione ha una maniglia tonda nell'angolo in basso a destra. Trascinandola 
 
 - Visto in uno screenshot: un tratto ingrandito mostra piccoli rigonfiamenti alle giunture dei segmenti. Il tratto è disegnato a pezzi con estremità tonde, e su coordinate a metà pixel i bordi sfumati si sommano. Un tratto disegnato direttamente a quello spessore, con coordinate intere, è liscio. Da controllare con la penna vera: se si nota, va disegnato il tratto come un solo percorso quando lo spessore è costante.
 
+### 4d. Ruotare la selezione (fatto)
+
+Attorno al tondo della scala c'è un anello invisibile (`#selRotate`, 52 px): passandoci sopra il cursore diventa una freccia curva che dipende dal lato: a destra del tondo sale, sotto il tondo scende verso sinistra (classe `below`, scelta dalla posizione del puntatore), trascinando si ruota la selezione attorno al suo centro. Con Maiusc a scatti di 15°. Durante il gesto ruotano la tela del gruppo e il riquadro; alla fine `rotateOp` ricalcola gli oggetti e il riquadro diventa quello del gruppo ruotato.
+
+- Testi e immagini salvano l'angolo in `r`, con perno nell'angolo in alto a sinistra: così l'editor di un testo ruotato resta fermo mentre si scrive. Editor, linguetta e testo trascinato sono ruotati con CSS.
+- Un file con `r` ha `version: 2`: le versioni vecchie della lavagna lo aprono ma disegnano testi e immagini dritti.
+- Non provato: rotazione con la penna vera e su touch.
+
 ### 5. Indicatore di lentezza (dopo i punti 1 e 2)
 
 Non deve contare gli oggetti: a 822 oggetti scatterebbe un avviso sbagliato. Deve misurare il tempo reale di ridisegno e comparire solo se resta alto. La soglia va scelta dopo le correzioni, misurando sulla macchina dell'utente.

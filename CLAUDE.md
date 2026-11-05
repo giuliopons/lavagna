@@ -40,8 +40,8 @@ La stessa cartella si apre anche dal disco con doppio clic: per questo lo script
 | `input.js` | Gesti di penna, mouse e dita, anello della gomma |
 | `text-editor.js` | Editor di testo e trascinamento dei testi |
 | `images.js` | Immagini incollate |
-| `objects.js` | Spostamento e scala degli oggetti (`shiftOp`, `scaleOp`), aggancio della gomma |
-| `selection.js` | Strumento selezione: riquadro, trascinamento, maniglia per scalare |
+| `objects.js` | Spostamento, scala e rotazione degli oggetti (`shiftOp`, `scaleOp`, `rotateOp`), aggancio della gomma |
+| `selection.js` | Strumento selezione: riquadro, trascinamento, maniglia per scalare, anello per ruotare |
 | `clipboard.js` | Copia, taglia, incolla |
 | `history.js` | Annulla e ripeti |
 | `file.js` | Salva e Apri su file. Apri accetta anche PDF (importati) e immagini (da posizionare) |
@@ -64,6 +64,7 @@ La stessa cartella si apre anche dal disco con doppio clic: per questo lo script
 - **Tasselli:** `L.known` indica quelli aggiornati. Modificando `S.ops` chiama `refresh` sulla zona toccata o `repaintAll`. Quelli fuori schermo si disegnano quando servono.
 - **Gomma:** è una maschera dentro `op.masks`, non un oggetto. I file vecchi con `k: 'er'` passano da `normalizeOps`.
 - **Forme importate (`k: 'sh'`):** contorni esatti dai PDF. `p` resta a terne, ma la terza cifra è un segno (1 inizio sottopercorso, 2 chiusura), non uno spessore. Si disegnano con `drawShape` (`stroke.js`); un file che ne contiene ha `version: 2`.
+- **Rotazione:** tratti, gomme e forme ruotano nei punti. Testi e immagini hanno il campo `r` (radianti), con perno nell'angolo in alto a sinistra `x, y`: il loro `bb` si calcola con `boxBB` (`stroke.js`) e il clic con `inBox` (`objects.js`). Un file con `r` ha `version: 2`.
 - **Fluidità del tratto:** nessun calcolo in più nel percorso di `addPoint`. Usa `getCoalescedEvents` e disegna solo il pezzo nuovo.
 - **Formato file e dati salvati:** i file `.json` già salvati devono continuare ad aprirsi. Non cambiare `app`, `lavagna-prefs` o il database IndexedDB `lavagna` senza una conversione.
 - **Lingua:** interfaccia, messaggi e commenti in italiano.

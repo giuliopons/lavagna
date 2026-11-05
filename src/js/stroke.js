@@ -1,5 +1,37 @@
 // Geometria del tratto: curve tra i punti medi. Stesso codice dal vivo e in ridisegno.
 
+/* Rettangoli ruotati: testi e immagini ruotano di r radianti attorno all'angolo in alto a sinistra (x, y) */
+export function boxBB(x, y, w, h, r, pad) {
+  if (!r) return [x - pad, y - pad, x + w + pad, y + h + pad];
+  const c = Math.cos(r), s = Math.sin(r), b = [Infinity, Infinity, -Infinity, -Infinity];
+  for (const [u, v] of [[-pad, -pad], [w + pad, -pad], [w + pad, h + pad], [-pad, h + pad]]) {
+    const px = x + u * c - v * s, py = y + u * s + v * c;
+    b[0] = Math.min(b[0], px); b[1] = Math.min(b[1], py);
+    b[2] = Math.max(b[2], px); b[3] = Math.max(b[3], py);
+  }
+  return b;
+}
+
+// Un punto del foglio nelle coordinate del rettangolo non ruotato
+export function toLocal(op, x, y) {
+  const dx = x - op.x, dy = y - op.y;
+  if (!op.r) return [dx, dy];
+  const c = Math.cos(op.r), s = Math.sin(op.r);
+  return [dx * c + dy * s, -dx * s + dy * c];
+}
+
+// Rettangolo di un tratto o di una forma dai suoi punti, con lo stesso margine usato quando nascono
+export function ptsBB(op) {
+  const a = op.p, b = [Infinity, Infinity, -Infinity, -Infinity];
+  const shape = op.k === 'sh', fixed = shape ? (op.sc ? op.sw / 2 : 0) + 1 : 0;
+  for (let i = 0; i < a.length; i += 3) {
+    const r = shape ? fixed : a[i + 2] / 2 + 2;
+    b[0] = Math.min(b[0], a[i] - r); b[1] = Math.min(b[1], a[i + 1] - r);
+    b[2] = Math.max(b[2], a[i] + r); b[3] = Math.max(b[3], a[i + 1] + r);
+  }
+  return b;
+}
+
 /* Forme importate da PDF: contorni esatti, terne x, y, segno (1 inizio, 2 chiusura) */
 const shapePaths = new WeakMap();
 

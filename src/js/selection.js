@@ -1,10 +1,10 @@
-// Strumento selezione: riquadro, clic, trascinamento ed eliminazione.
+// Strumento selezione: riquadro, clic, trascinamento, scala, rotazione ed eliminazione.
 
 import { board, world } from './dom.js';
 import { afterChange, record } from './history.js';
 import { toWorld } from './input.js';
 import { hits, paint, refresh } from './layers.js';
-import { scaleOp, shiftOp } from './objects.js';
+import { inBox, rotateOp, scaleOp, shiftOp } from './objects.js';
 import { S } from './state.js';
 import { shapePath } from './stroke.js';
 
@@ -14,6 +14,12 @@ export function clearSel() {
   if (!S.sel) return;
   S.sel.box.remove();
   S.sel = null;
+}
+
+// Il puntatore sta sotto il tondo (e non alla sua destra)?
+function isBelow(ring, e) {
+  const r = ring.getBoundingClientRect();
+  return e.clientY - r.top - r.height / 2 > e.clientX - r.left - r.width / 2;
 }
 
 export function setSel(list) {
@@ -30,11 +36,16 @@ export function setSel(list) {
   box.style.top = bb[1] + 'px';
   box.style.width = bb[2] - bb[0] + 'px';
   box.style.height = bb[3] - bb[1] + 'px';
-  // maniglia per scalare, nell'angolo in basso a destra
+  // nell'angolo in basso a destra: il tondo scala, l'anello attorno ruota
+  const ring = document.createElement('div');
+  ring.id = 'selRotate';
+  ring.title = 'Trascina attorno al tondo per ruotare (Maiusc: a scatti di 15°)';
+  // sotto il tondo la freccia scende verso sinistra, a destra sale
+  ring.addEventListener('pointermove', e => ring.classList.toggle('below', isBelow(ring, e)));
   const handle = document.createElement('div');
   handle.id = 'selHandle';
   handle.title = 'Trascina per ingrandire o rimpicciolire';
-  box.appendChild(handle);
+  box.append(ring, handle);
   world.appendChild(box);
   S.sel = { ops: list, bb, box };
 }
@@ -49,7 +60,7 @@ function hitTest(x, y) {
   for (let i = S.ops.length - 1; i >= 0; i--) {
     const o = S.ops[i];
     if (o.hidden || x < o.bb[0] || x > o.bb[2] || y < o.bb[1] || y > o.bb[3]) continue;
-    if (!o.p) return o;
+    if (!o.p) { if (inBox(o, x, y, 5 / S.zoom)) return o; continue; }
     if (o.k === 'sh') {
       const path = shapePath(o);
       hitCtx.lineWidth = (o.sc ? o.sw : 0) + 10 / S.zoom;
@@ -80,9 +91,17 @@ function inRect(o, r) {
 
 export function selDown(e) {
   try { board.setPointerCapture(e.pointerId); } catch {}
-  if (S.sel && (e.target === S.sel.box || e.target.id === 'selHandle')) {
-    const mode = e.target.id === 'selHandle' ? 'scale' : 'move';
-    S.gest = { type: 'seldrag', mode, id: e.pointerId, sx: e.clientX, sy: e.clientY, dx: 0, dy: 0, k: 1, float: null };
+  if (S.sel && (e.target === S.sel.box || e.target.id === 'selHandle' || e.target.id === 'selRotate')) {
+    const mode = e.target.id === 'selHandle' ? 'scale' : e.target.id === 'selRotate' ? 'rotate' : 'move';
+    S.gest = { type: 'seldrag', mode, id: e.pointerId, sx: e.clientX, sy: e.clientY, dx: 0, dy: 0, k: 1, a: 0, float: null };
+    if (mode === 'rotate') {
+      const bb = S.sel.bb, [x, y] = toWorld(e);
+      S.gest.cx = (bb[0] + bb[2]) / 2;
+      S.gest.cy = (bb[1] + bb[3]) / 2;
+      S.gest.a0 = Math.atan2(y - S.gest.cy, x - S.gest.cx);
+      board.classList.add('rotating');
+      board.classList.toggle('below', isBelow(e.target, e));
+    }
     return;
   }
   clearSel();
@@ -153,6 +172,17 @@ export function selDrag(e) {
     if (Math.hypot(e.clientX - g.sx, e.clientY - g.sy) < 3) return;
     g.float = startFloat();
   }
+  if (g.mode === 'rotate') {
+    // angolo attorno al centro della selezione; con Maiusc a scatti di 15°
+    const [x, y] = toWorld(e);
+    let a = Math.atan2(y - g.cy, x - g.cx) - g.a0;
+    if (e.shiftKey) a = Math.round(a / (Math.PI / 12)) * (Math.PI / 12);
+    g.a = a;
+    const bb = S.sel.bb, origin = `${(bb[2] - bb[0]) / 2}px ${(bb[3] - bb[1]) / 2}px`, tf = `rotate(${a}rad)`;
+    g.float.style.transformOrigin = S.sel.box.style.transformOrigin = origin;
+    g.float.style.transform = S.sel.box.style.transform = tf;
+    return;
+  }
   if (g.mode === 'scale') {
     // l'angolo in alto a sinistra resta fermo; il fattore viene dalla diagonale, così le proporzioni restano
     const bb = S.sel.bb, w = bb[2] - bb[0], h = bb[3] - bb[1];
@@ -170,12 +200,15 @@ export function selDrag(e) {
 }
 
 export function selDragEnd() {
-  const { float, mode, dx, dy, k } = S.gest;
+  const { float, mode, dx, dy, k, a: angle, cx, cy } = S.gest;
   S.gest = null;
+  board.classList.remove('rotating', 'below');
   if (!float || !S.sel) return;
   const a = S.sel.ops, oldBB = S.sel.bb;
   const idx = a.map(o => S.ops.indexOf(o));
-  const b = mode === 'scale' ? a.map(o => scaleOp(o, oldBB[0], oldBB[1], k)) : a.map(o => shiftOp(o, dx, dy));
+  const b = a.map(mode === 'scale' ? o => scaleOp(o, oldBB[0], oldBB[1], k)
+    : mode === 'rotate' ? o => rotateOp(o, cx, cy, angle)
+      : o => shiftOp(o, dx, dy));
   for (const o of a) o.hidden = false;
   idx.forEach((i, j) => { S.ops[i] = b[j]; });
   record({ t: 'selmove', idx, a, b });

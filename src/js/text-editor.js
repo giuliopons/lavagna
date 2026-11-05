@@ -4,7 +4,7 @@ import { board, hint, world } from './dom.js';
 import { afterChange, record, updateHint } from './history.js';
 import { toWorld } from './input.js';
 import { forTiles, paint, refresh } from './layers.js';
-import { shiftOp } from './objects.js';
+import { inBox, shiftOp } from './objects.js';
 import { S, tools } from './state.js';
 import { scheduleSave } from './storage.js';
 import { lineH, textBB, textWidth } from './text-render.js';
@@ -13,7 +13,7 @@ import { syncButtons, syncTool } from './tray.js';
 function textAt(x, y) {
   for (let i = S.ops.length - 1; i >= 0; i--) {
     const op = S.ops[i];
-    if (op.k === 'tx' && !op.hidden && x >= op.bb[0] && x <= op.bb[2] && y >= op.bb[1] && y <= op.bb[3]) return op;
+    if (op.k === 'tx' && !op.hidden && inBox(op, x, y, op.s * .3 + 2)) return op;
   }
   return null;
 }
@@ -39,9 +39,15 @@ export function gripDrag(e) {
 }
 
 export function styleGrip() {
-  S.edit.grip.style.left = S.edit.x - 5 / S.zoom + 'px';
-  S.edit.grip.style.top = S.edit.y - 24 / S.zoom + 'px';
+  const st = S.edit.grip.style, ox = 5 / S.zoom, oy = 24 / S.zoom;
+  st.left = S.edit.x - ox + 'px';
+  st.top = S.edit.y - oy + 'px';
+  // un testo ruotato ha la linguetta ruotata attorno al suo angolo
+  st.transformOrigin = `${ox}px ${oy}px`;
+  st.transform = rotateCss(S.edit.r);
 }
+
+const rotateCss = r => r ? `rotate(${r}rad)` : '';
 
 /* Testo già sul foglio: premere e trascinare lo sposta, un clic fermo lo apre per modificarlo */
 export function textDrag(e) {
@@ -59,6 +65,8 @@ export function textDrag(e) {
     d.style.color = op.c;
     d.style.fontSize = op.s + 'px';
     d.style.lineHeight = lineH(op.s) + 'px';
+    d.style.transformOrigin = '0 0';
+    d.style.transform = rotateCss(op.r);
     world.appendChild(d);
     g.ghost = d;
   }
@@ -77,7 +85,7 @@ export function textRelease(cancelled) {
     refresh(op.bb);
     tools.tx.c = op.c; tools.tx.s = op.s;
     syncTool();
-    openEditor(op.x, op.y, op.t, op);
+    openEditor(op.x, op.y, op.t, op, op.r);
     return;
   }
   ghost.remove();
@@ -109,7 +117,7 @@ export function textClick(e) {
   openEditor(x, y - lineH(s) / 2, '', null);
 }
 
-function openEditor(x, y, text, source) {
+function openEditor(x, y, text, source, r = 0) {
   const el = document.createElement('textarea');
   el.id = 'editor';
   el.spellcheck = false;
@@ -118,12 +126,14 @@ function openEditor(x, y, text, source) {
   el.setAttribute('aria-label', 'Testo sul foglio');
   el.style.left = x + 'px';
   el.style.top = y + 'px';
+  el.style.transformOrigin = '0 0';
+  el.style.transform = rotateCss(r);
   world.appendChild(el);
   const grip = document.createElement('div');
   grip.id = 'editGrip';
   grip.title = 'Trascina per spostare il testo';
   world.appendChild(grip);
-  S.edit = { el, grip, x, y, source };
+  S.edit = { el, grip, x, y, r, source };
   styleGrip();
   board.classList.remove('moving');
   hint.hidden = true;
@@ -156,7 +166,7 @@ function sizeEditor() {
 
 export function commitEdit() {
   if (!S.edit) return;
-  const { el, grip, x, y, source } = S.edit;
+  const { el, grip, x, y, r, source } = S.edit;
   grip.remove();
   const text = el.value.replace(/\s+$/, '');
   const { c, s } = tools.tx;
@@ -173,6 +183,7 @@ export function commitEdit() {
       refresh(source.bb);
     } else {
       const op = { k: 'tx', x, y, c, s, t: text };
+      if (r) op.r = r;
       op.bb = textBB(op);
       if (source.masks) op.masks = shiftOp(source, x - source.x, y - source.y).masks;
       S.ops[i] = op;

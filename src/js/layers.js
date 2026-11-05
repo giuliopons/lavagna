@@ -62,7 +62,13 @@ function drawRaw(ctx, op, clipBB) {
   if (op.k === 'tx') drawText(ctx, op);
   else if (op.k === 'im') {
     ctx.imageSmoothingQuality = 'high';
-    ctx.drawImage(op.bmp, op.x, op.y, op.w, op.h);
+    if (op.r) {
+      ctx.save();
+      ctx.translate(op.x, op.y);
+      ctx.rotate(op.r);
+      ctx.drawImage(op.bmp, 0, 0, op.w, op.h);
+      ctx.restore();
+    } else ctx.drawImage(op.bmp, op.x, op.y, op.w, op.h);
   } else if (op.k === 'sh') drawShape(ctx, op);
   else drawStroke(ctx, op, clipBB);
 }

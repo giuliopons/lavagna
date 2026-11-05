@@ -70,6 +70,16 @@ button, input { font: inherit; }
 #placing { position: absolute; pointer-events: auto; cursor: move; outline: calc(1.5px * var(--iz)) dashed #5f6b78; outline-offset: calc(2px * var(--iz)); touch-action: none; }
 #world #placing canvas { position: static; width: 100%; height: 100%; }
 #placeHandle, #selHandle { position: absolute; right: calc(-10px * var(--iz)); bottom: calc(-10px * var(--iz)); width: calc(20px * var(--iz)); height: calc(20px * var(--iz)); box-sizing: border-box; border-radius: 50%; background: var(--paper); border: calc(2px * var(--iz)) solid var(--tray); cursor: nwse-resize; touch-action: none; }
+/* Anello attorno alla maniglia della selezione: trascinandolo si ruota. Il cursore è una freccia curva:
+   a destra del tondo sale, sotto il tondo scende verso sinistra */
+:root {
+  --rotate-right: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24'%3E%3Cg fill='none' stroke-linecap='round' stroke-linejoin='round'%3E%3Cg stroke='white' stroke-width='4.5'%3E%3Cpath d='M9.07 18.88A12 12 0 0 0 15.95 6.95'/%3E%3Cpath d='M12.81 11.23L15.95 6.95 19.79 10.63'/%3E%3C/g%3E%3Cg stroke='black' stroke-width='2'%3E%3Cpath d='M9.07 18.88A12 12 0 0 0 15.95 6.95'/%3E%3Cpath d='M12.81 11.23L15.95 6.95 19.79 10.63'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E") 12 12, alias;
+  --rotate-below: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24'%3E%3Cg fill='none' stroke-linecap='round' stroke-linejoin='round'%3E%3Cg stroke='white' stroke-width='4.5'%3E%3Cpath d='M18.04 8.47A16 16 0 0 1 5.78 18.76'/%3E%3Cpath d='M9.11 14.61L5.78 18.76 10.33 21.51'/%3E%3C/g%3E%3Cg stroke='black' stroke-width='2'%3E%3Cpath d='M18.04 8.47A16 16 0 0 1 5.78 18.76'/%3E%3Cpath d='M9.11 14.61L5.78 18.76 10.33 21.51'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E") 12 12, alias;
+}
+#selRotate { position: absolute; right: calc(-26px * var(--iz)); bottom: calc(-26px * var(--iz)); width: calc(52px * var(--iz)); height: calc(52px * var(--iz)); border-radius: 50%; cursor: var(--rotate-right); touch-action: none; }
+#selRotate.below { cursor: var(--rotate-below); }
+#board.rotating, #board.rotating * { cursor: var(--rotate-right) !important; }
+#board.rotating.below, #board.rotating.below * { cursor: var(--rotate-below) !important; }
 
 #hint {
   position: absolute; left: 50%; top: 42%; transform: translate(-50%, -50%);

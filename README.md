@@ -17,7 +17,7 @@ Se hai esportato i tuoi lavori dalla lavagna di Microsoft in formato PDF puoi an
 - **Gomma**, anche con la punta gomma della penna.
 - **Testo** scritto da tastiera, da spostare e modificare.
 - **Immagini** incollate dagli appunti o aperte da file.
-- **Selezione** per spostare, scalare, copiare, tagliare ed eliminare gruppi di oggetti.
+- **Selezione** per spostare, scalare, ruotare, copiare, tagliare ed eliminare gruppi di oggetti.
 - **Foglio infinito** con zoom, schermo intero e vista pulita per gli screenshot.
 - **Salvataggio automatico** nel browser e **salvataggio su file** `.json`.
 - **Import dei PDF** esportati dalla lavagna Microsoft: tratti, testi e immagini tornano modificabili.
@@ -41,7 +41,7 @@ Se hai esportato i tuoi lavori dalla lavagna di Microsoft in formato PDF puoi an
 | E | Evidenziatore |
 | G | Gomma |
 | T | Testo: clic sul foglio e scrivi |
-| V | Selezione: trascina un riquadro o clicca un oggetto. Trascina dentro il riquadro per spostare, dalla maniglia nell'angolo per ingrandire o rimpicciolire |
+| V | Selezione: trascina un riquadro o clicca un oggetto. Trascina dentro il riquadro per spostare, dal tondo nell'angolo per ingrandire o rimpicciolire, appena attorno al tondo per ruotare (con Maiusc a scatti di 15°) |
 
 Colore e spessore si scelgono nel vassoio in basso.
 
