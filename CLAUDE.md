@@ -23,6 +23,8 @@ La build scrive in `dist`, che è nel repository: dopo ogni modifica al codice r
 
 La stessa cartella si apre anche dal disco con doppio clic: per questo lo script è classico (`defer`, formato `iife`) e i tag non hanno `crossorigin`. Da disco i moduli ES e le richieste CORS sono bloccati. Da disco il service worker non parte e il salvataggio automatico è separato da quello del sito.
 
+La versione nel pannello delle impostazioni viene da `version` in `package.json` (costante `__VERSION__`), senza gli zeri finali: `1.0.0` diventa `v.1`, `1.2.0` diventa `v.1.2`.
+
 `npm run dev` ha il tasto D del registro eventi; `npm run bench` usa una build a file unico in `dist/bench`, cancellata alla fine.
 
 ## Struttura di `src/js`

@@ -7,7 +7,7 @@ export default [
   {
     files: ['src/**/*.js'],
     languageOptions: {
-      globals: { ...globals.browser, __PWA__: 'readonly', __BENCH__: 'readonly', __DEBUG_KEY__: 'readonly' },
+      globals: { ...globals.browser, __PWA__: 'readonly', __BENCH__: 'readonly', __DEBUG_KEY__: 'readonly', __VERSION__: 'readonly' },
     },
     rules: {
       'no-empty': ['error', { allowEmptyCatch: true }],

@@ -532,6 +532,8 @@ test('impostazioni: la bassa latenza si cambia dal pannello e resta salvata', as
   await page.click('#info');
   const sw = page.locator('#panel #lowLat');
   await expect(sw).toBeChecked();
+  await expect(page.locator('.panel-foot')).toContainText('v.1');
+  await expect(page.locator('.panel-foot a')).toHaveAttribute('href', 'https://barattalo.it');
   await page.click('label[for=lowLat]');
   await expect(sw).not.toBeChecked();
   await expect(page.locator('#lowLatNote')).toContainText('Accendila');

@@ -192,6 +192,11 @@ button, input { font: inherit; }
 #statsFacts div { display: flex; justify-content: space-between; gap: 12px; }
 #statsFacts dt { color: var(--tray-muted); }
 #statsFacts dd { margin: 0; text-align: right; }
+/* Versione e credits in fondo al pannello */
+.panel-foot { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; margin-top: 14px; padding-top: 10px; border-top: 1px solid var(--tray-line); color: var(--tray-muted); font-size: .8125rem; }
+.panel-foot a { color: var(--tray-muted); text-decoration: none; }
+.panel-foot a:hover { color: var(--tray-text); text-decoration: underline; }
+.panel-foot a:focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; border-radius: 2px; }
 #debug {
   position: fixed; z-index: 7; right: 16px; top: calc(16px + env(safe-area-inset-top, 0px)); margin: 0; padding: 10px 12px;
   max-width: calc(100% - 32px); overflow: hidden; border-radius: 9px; background: var(--tray); color: var(--tray-text);

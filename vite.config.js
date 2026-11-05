@@ -1,5 +1,9 @@
 import { defineConfig } from 'vite';
 import { viteSingleFile } from 'vite-plugin-singlefile';
+import { readFileSync } from 'node:fs';
+
+// Versione mostrata nel pannello: da package.json, senza gli zeri finali (1.0.0 diventa 1, 1.2.0 diventa 1.2)
+const VERSION = JSON.parse(readFileSync(new URL('./package.json', import.meta.url), 'utf8')).version.replace(/(\.0)+$/, '');
 
 // Modalità:
 //   pwa          la cartella dist, da caricare sul sito: manifest, icone e service worker
@@ -24,6 +28,7 @@ export default defineConfig(({ mode }) => {
     define: {
       __PWA__: pwa,
       __BENCH__: bench,
+      __VERSION__: JSON.stringify(VERSION),
       __DEBUG_KEY__: !pwa,
     },
     plugins: bench ? [viteSingleFile()] : [{

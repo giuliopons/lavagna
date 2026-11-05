@@ -134,6 +134,8 @@ export function updatePanel() {
 }
 
 export function initSheetInfo() {
+  // versione da package.json, messa dalla build
+  $('appVersion').textContent = 'v.' + __VERSION__;
   const inp = $('sheetName');
   inp.addEventListener('input', () => {
     const v = inp.value.trim();
