@@ -40,7 +40,7 @@
   </div>
   <div class="rule"></div>
   <div class="group">
-    <button class="btn" id="open" title="Apri un file (Ctrl+O)" aria-label="Apri un file"><svg viewBox="0 0 24 24"><path d="M3.5 18.5V6.5A1.5 1.5 0 0 1 5 5h4l2 2.5h6.5A1.5 1.5 0 0 1 19 9v1.5"/><path d="M3.5 18.5l2.8-7A1.5 1.5 0 0 1 7.7 10.5H20a1 1 0 0 1 .9 1.4l-2.5 6.1a1.5 1.5 0 0 1-1.4 1H4.5a1 1 0 0 1-1-.5z"/></svg></button>
+    <button class="btn" id="open" title="Apri una lavagna, importa un PDF o un'immagine (Ctrl+O)" aria-label="Apri una lavagna, importa un PDF o un'immagine"><svg viewBox="0 0 24 24"><path d="M3.5 18.5V6.5A1.5 1.5 0 0 1 5 5h4l2 2.5h6.5A1.5 1.5 0 0 1 19 9v1.5"/><path d="M3.5 18.5l2.8-7A1.5 1.5 0 0 1 7.7 10.5H20a1 1 0 0 1 .9 1.4l-2.5 6.1a1.5 1.5 0 0 1-1.4 1H4.5a1 1 0 0 1-1-.5z"/></svg></button>
     <button class="btn" id="save" title="Salva su file (Ctrl+S)" aria-label="Salva su file"><svg viewBox="0 0 24 24"><path d="M5.5 4h10.2L20 8.3v10.2a1.5 1.5 0 0 1-1.5 1.5h-13A1.5 1.5 0 0 1 4 18.5v-13A1.5 1.5 0 0 1 5.5 4z"/><path d="M8 4v5h7V4"/><path d="M7.5 20v-6.5h9V20"/></svg></button>
     <button class="btn" id="undo" title="Annulla (Ctrl+Z)" aria-label="Annulla"><svg viewBox="0 0 24 24"><path d="M8.5 5L4 9.5 8.5 14"/><path d="M4 9.5h10.5a5 5 0 0 1 0 10H9"/></svg></button>
     <button class="btn" id="redo" title="Ripeti (Ctrl+Y)" aria-label="Ripeti"><svg viewBox="0 0 24 24"><path d="M15.5 5L20 9.5 15.5 14"/><path d="M20 9.5H9.5a5 5 0 0 0 0 10H15"/></svg></button>
@@ -64,7 +64,7 @@
   </table>
   <dl id="statsFacts"></dl>
 </section>
-<input type="file" id="fileInput" accept=".json,application/json" aria-label="Scegli una lavagna salvata" hidden>
+<input type="file" id="fileInput" accept=".json,application/json,.pdf,application/pdf,.png,.jpg,.jpeg,.webp,.gif,image/*" aria-label="Scegli una lavagna, un PDF o un'immagine" hidden>
 <div id="toast" role="status" hidden></div>
 <script type="module" src="./js/main.js"></script>
 </body>

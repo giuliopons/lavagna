@@ -2,8 +2,9 @@
 
 import { $ } from './dom.js';
 import { afterChange, record } from './history.js';
-import { commitPlace } from './images.js';
+import { commitPlace, startPlace } from './images.js';
 import { normalizeOps } from './objects.js';
+import { importPdf } from './pdf-import.js';
 import { clearSel } from './selection.js';
 import { S, pan } from './state.js';
 import { fileName, setName } from './sheet-info.js';
@@ -15,6 +16,11 @@ import { setView } from './view.js';
 const FILE_APP = 'lavagna-a-mano-libera';
 
 const FILE_TYPES = [{ description: 'Lavagna salvata', accept: { 'application/json': ['.json'] } }];
+
+const OPEN_TYPES = [{
+  description: 'Lavagna, PDF o immagine',
+  accept: { 'application/json': ['.json'], 'application/pdf': ['.pdf'], 'image/*': ['.png', '.jpg', '.jpeg', '.webp', '.gif'] },
+}];
 
 let fileHandle = null;
 
@@ -50,7 +56,9 @@ export async function docBlob() {
     if (o.k === 'im') out.data = await blobToData(o.blob);
     return out;
   }));
-  return new Blob([JSON.stringify({ app: FILE_APP, version: 1, name: S.name, pan: { ...pan }, zoom: S.zoom, ops: list })], { type: 'application/json' });
+  // le forme importate da PDF arrivano con la versione 2
+  const version = S.ops.some(o => o.k === 'sh') ? 2 : 1;
+  return new Blob([JSON.stringify({ app: FILE_APP, version, name: S.name, pan: { ...pan }, zoom: S.zoom, ops: list })], { type: 'application/json' });
 }
 
 const baseName = f => f.replace(/\.json$/i, '');
@@ -103,14 +111,27 @@ export async function doOpen() {
   commitPlace();
   if (window.showOpenFilePicker && !window.claude) {
     try {
-      const [h] = await window.showOpenFilePicker({ types: FILE_TYPES });
-      if (await loadFile(await h.getFile())) fileHandle = h;
+      const [h] = await window.showOpenFilePicker({ types: OPEN_TYPES });
+      const f = await h.getFile();
+      if (await openAny(f) === 'json') fileHandle = h;
       return;
     } catch (err) {
       if (err?.name === 'AbortError') return;
     }
   }
   $('fileInput').click();
+}
+
+const kindOf = f => /\.pdf$/i.test(f.name) || f.type === 'application/pdf' ? 'pdf'
+  : f.type.startsWith('image/') || /\.(png|jpe?g|webp|gif)$/i.test(f.name) ? 'image' : 'json';
+
+// Un .json sostituisce il foglio, un PDF si aggiunge, un'immagine si posiziona come se fosse incollata.
+// Restituisce 'json' solo se il foglio è stato aperto: Ctrl+S può sovrascrivere quel file
+async function openAny(file) {
+  const kind = kindOf(file);
+  if (kind === 'pdf') { await importPdf(file); return 'pdf'; }
+  if (kind === 'image') { commitEdit(); clearSel(); await startPlace(file); return 'image'; }
+  return await loadFile(file) ? 'json' : null;
 }
 
 async function loadFile(file) {
@@ -153,6 +174,6 @@ export function initFile() {
   $('fileInput').addEventListener('change', async e => {
     const f = e.target.files[0];
     e.target.value = '';
-    if (f) { fileHandle = null; await loadFile(f); }
+    if (f && await openAny(f) === 'json') fileHandle = null;
   });
 }

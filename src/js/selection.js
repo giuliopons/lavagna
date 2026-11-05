@@ -6,6 +6,9 @@ import { toWorld } from './input.js';
 import { hits, paint, refresh } from './layers.js';
 import { shiftBB, shiftOp } from './objects.js';
 import { S } from './state.js';
+import { shapePath } from './stroke.js';
+
+const hitCtx = document.createElement('canvas').getContext('2d');
 
 export function clearSel() {
   if (!S.sel) return;
@@ -42,6 +45,12 @@ function hitTest(x, y) {
     const o = S.ops[i];
     if (o.hidden || x < o.bb[0] || x > o.bb[2] || y < o.bb[1] || y > o.bb[3]) continue;
     if (!o.p) return o;
+    if (o.k === 'sh') {
+      const path = shapePath(o);
+      hitCtx.lineWidth = (o.sc ? o.sw : 0) + 10 / S.zoom;
+      if ((o.c && hitCtx.isPointInPath(path, x, y, o.fr || 'nonzero')) || hitCtx.isPointInStroke(path, x, y)) return o;
+      continue;
+    }
     const a = o.p, n = a.length;
     if (n === 3 && Math.hypot(x - a[0], y - a[1]) <= a[2] / 2 + 5 / S.zoom) return o;
     for (let j = 3; j < n; j += 3) {
@@ -124,7 +133,7 @@ function startFloat() {
   for (const o of S.sel.ops) paint(fake, o);
   for (const o of S.sel.ops) o.hidden = true;
   refresh(bb);
-  if (S.sel.ops.every(o => o.k === 'hl')) c.style.mixBlendMode = 'multiply';
+  if (S.sel.ops.every(o => o.k === 'hl' || o.mul)) c.style.mixBlendMode = 'multiply';
   world.appendChild(c);
   return c;
 }

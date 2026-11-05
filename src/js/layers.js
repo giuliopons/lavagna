@@ -4,7 +4,7 @@
 import { $ } from './dom.js';
 import { updatePanelSoon } from './sheet-info.js';
 import { S, T, pan } from './state.js';
-import { drawStroke } from './stroke.js';
+import { drawShape, drawStroke } from './stroke.js';
 import { drawText } from './text-render.js';
 
 const tmp = document.createElement('canvas');
@@ -63,7 +63,8 @@ function drawRaw(ctx, op, clipBB) {
   else if (op.k === 'im') {
     ctx.imageSmoothingQuality = 'high';
     ctx.drawImage(op.bmp, op.x, op.y, op.w, op.h);
-  } else drawStroke(ctx, op, clipBB);
+  } else if (op.k === 'sh') drawShape(ctx, op);
+  else drawStroke(ctx, op, clipBB);
 }
 
 export function paint(t, op) {
@@ -83,7 +84,7 @@ export function paint(t, op) {
   }
   ctx.save();
   ctx.setTransform(1, 0, 0, 1, 0, 0);
-  ctx.globalCompositeOperation = op.k === 'hl' ? 'multiply' : 'source-over';
+  ctx.globalCompositeOperation = op.k === 'hl' || op.mul ? 'multiply' : 'source-over';
   ctx.drawImage(c, 0, 0);
   ctx.restore();
 }

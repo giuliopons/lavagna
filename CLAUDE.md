@@ -48,7 +48,9 @@ Pagine pubblicate: lavagna `https://claude.ai/artifact/8BaEEUjh9kPeduqHzHkdXT` (
 | `selection.js` | Strumento selezione |
 | `clipboard.js` | Copia, taglia, incolla |
 | `history.js` | Annulla e ripeti |
-| `file.js` | Salva e Apri su file |
+| `file.js` | Salva e Apri su file. Apri accetta anche PDF (importati) e immagini (da posizionare) |
+| `pdf-read.js` | Lettore PDF minimo: oggetti, flussi FlateDecode, pagine |
+| `pdf-import.js` | Import dei PDF della lavagna Microsoft: forme `sh`, testi, immagini |
 | `storage.js` | Salvataggio automatico in IndexedDB |
 | `tray.js` | Vassoio: strumenti, colori, spessore, bassa latenza |
 | `view-modes.js` | Schermo intero e vista pulita |
@@ -65,6 +67,7 @@ Pagine pubblicate: lavagna `https://claude.ai/artifact/8BaEEUjh9kPeduqHzHkdXT` (
 - **Un solo disegno:** `paint` serve sia al ridisegno sia alla tela del gruppo trascinato. Il tratto dal vivo e quello ridisegnato usano le stesse funzioni di `stroke.js`.
 - **Tasselli:** `L.known` indica quelli aggiornati. Modificando `S.ops` chiama `refresh` sulla zona toccata o `repaintAll`. Quelli fuori schermo si disegnano quando servono.
 - **Gomma:** è una maschera dentro `op.masks`, non un oggetto. I file vecchi con `k: 'er'` passano da `normalizeOps`.
+- **Forme importate (`k: 'sh'`):** contorni esatti dai PDF. `p` resta a terne, ma la terza cifra è un segno (1 inizio sottopercorso, 2 chiusura), non uno spessore. Si disegnano con `drawShape` (`stroke.js`); un file che ne contiene ha `version: 2`.
 - **Fluidità del tratto:** nessun calcolo in più nel percorso di `addPoint`. Usa `getCoalescedEvents` e disegna solo il pezzo nuovo.
 - **Formato file e dati salvati:** i file `.json` già salvati devono continuare ad aprirsi. Non cambiare `app`, `lavagna-prefs` o il database IndexedDB `lavagna` senza una conversione.
 - **Lingua:** interfaccia, messaggi e commenti in italiano.

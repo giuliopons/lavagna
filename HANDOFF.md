@@ -50,6 +50,17 @@ Pannello in alto a destra, dal pulsante con le barre nel vassoio o dal tasto I; 
 - Pulisci non cambia il nome.
 - Da verificare a mano: il `title` nel visualizzatore di Claude e la finestra di scelta del file in Vivaldi.
 
+### 4b. Import da PDF e immagini (fatto)
+
+Apri accetta `.json`, `.pdf` e immagini. Un PDF della lavagna Microsoft si aggiunge al foglio, al centro della vista e selezionato, con lo zoom ridotto se non entra. Annulla lo toglie tutto. Un'immagine si posiziona come se fosse incollata.
+
+- I PDF della lavagna Microsoft sono vettoriali, stampati da Chromium (Skia). Ogni tratto è un contorno riempito: diventa un oggetto `sh` con il contorno esatto, curve spezzate a 0,25 px e punti semplificati a 0,12 px. Linee e forme con bordo diventano `sh` con `sc`/`sw`; la trasparenza va in `a`, il multiply in `mul`.
+- I testi passano da `/ToUnicode` e diventano testi normali, con il font della lavagna. Le immagini (Flate RGB/Gray/Indexed/CMYK con SMask, oppure JPEG) diventano oggetti `im`, ritagliate dalle clip rettangolari.
+- pt PDF × 4/3 = px della lavagna: le misure tornano quelle della lavagna originale.
+- Provato sui 5 PDF dell'utente (`Desktop\Microsoft Whiteboard`): tutti importati in meno di un secondo, a schermo uguali all'originale, testi corretti. Il test usa un PDF sintetico (`samplePdf` in `tests/helpers.js`); i PDF veri restano fuori dal repository.
+- Non provato: PDF di altri programmi (object stream, cifratura e font senza ToUnicode non sono gestiti; arriva un messaggio), finestra di scelta del file in Vivaldi, pagina pubblicata.
+- Le versioni vecchie della lavagna non sanno disegnare `sh`: un file con forme va aperto con questa versione.
+
 ### 5. Indicatore di lentezza (dopo i punti 1 e 2)
 
 Non deve contare gli oggetti: a 822 oggetti scatterebbe un avviso sbagliato. Deve misurare il tempo reale di ridisegno e comparire solo se resta alto. La soglia va scelta dopo le correzioni, misurando sulla macchina dell'utente.

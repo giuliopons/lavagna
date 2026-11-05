@@ -8,7 +8,7 @@ import { S, pan } from './state.js';
 import { commitEdit } from './text-editor.js';
 import { toast } from './toast.js';
 
-async function startPlace(blob) {
+export async function startPlace(blob) {
   let bmp;
   try { bmp = await createImageBitmap(blob); }
   catch { toast('Non riesco a leggere questa immagine. Prova a copiarla di nuovo.'); return; }

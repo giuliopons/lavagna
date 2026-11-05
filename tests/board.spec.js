@@ -1,6 +1,6 @@
 import { test, expect } from '@playwright/test';
 import { readFileSync, writeFileSync } from 'node:fs';
-import { FIXTURE, drag, ink, line, noErrors, openBoard, pasteImage, pixel, rect, setZoomSlider } from './helpers.js';
+import { FIXTURE, drag, ink, line, noErrors, openBoard, pasteImage, pixel, pngBuffer, rect, samplePdf, setZoomSlider } from './helpers.js';
 
 test('penna, evidenziatore in multiply e gomma', async ({ page }) => {
   const errors = await openBoard(page);
@@ -364,5 +364,65 @@ test('pannello del foglio: nome nel titolo e nel file, statistiche', async ({ pa
   await page.keyboard.press('i');
   await page.keyboard.press('Escape');
   await expect(page.locator('#panel')).toBeHidden();
+  noErrors(errors);
+});
+
+test('importa un PDF della lavagna Microsoft e un PNG da Apri', async ({ page }, info) => {
+  const errors = await openBoard(page);
+  await page.setInputFiles('#fileInput', { name: 'schema cavi.pdf', mimeType: 'application/pdf', buffer: samplePdf() });
+  await expect(page.locator('#toast')).toContainText('Importati 2 tratti e forme, 1 testi, 1 immagini');
+  await expect(page).toHaveTitle('schema cavi – Lavagna a mano libera');
+  await expect(page.locator('#selBox')).toHaveCount(1);
+  // il rettangolo nero (200 × 100 pt) è al centro dello schermo, a zoom 100%
+  const cx = 640, cy = 380;
+  expect(await ink(page, cx - 120, cy - 6, 60, 12)).toBeGreaterThan(500);
+  const [r, g, b] = await pixel(page, cx, cy - 13);   // linea rossa trasparente sul nero
+  expect(r).toBeGreaterThan(90);
+  expect(g + b).toBeLessThan(40);
+
+  // Annulla toglie tutto, Ripeti lo rimette
+  await page.keyboard.press('Control+z');
+  await page.waitForTimeout(100);
+  await expect(page.locator('#hint')).toBeVisible();
+  await page.keyboard.press('Control+y');
+  await page.waitForTimeout(100);
+  expect(await ink(page, cx - 120, cy - 6, 60, 12)).toBeGreaterThan(500);
+
+  // un clic sulla forma la seleziona da sola
+  await page.mouse.click(cx + 300, cy + 200);
+  await page.mouse.click(cx - 90, cy);
+  const box = await rect(page, 'selBox');
+  expect(box.w).toBeGreaterThan(250);
+  expect(box.w).toBeLessThan(290);
+
+  // la gomma cancella la forma
+  await page.keyboard.press('Escape');
+  await page.keyboard.press('g');
+  await line(page, cx - 200, cy, cx + 200, cy);
+  expect(await ink(page, cx - 120, cy - 6, 60, 12)).toBe(0);
+
+  // salvata e riaperta resta una forma
+  const [download] = await Promise.all([page.waitForEvent('download'), page.click('#save')]);
+  const file = info.outputPath('schema.json');
+  await download.saveAs(file);
+  const saved = JSON.parse(readFileSync(file, 'utf8'));
+  expect(saved.version).toBe(2);
+  expect(saved.ops.map(o => o.k).sort()).toEqual(['im', 'sh', 'sh', 'tx']);
+  expect(saved.ops.find(o => o.k === 'tx').t).toBe('Ciao');
+  expect(saved.ops.find(o => o.k === 'sh' && o.c === '#000000').masks).toHaveLength(1);
+  await page.click('#clear');
+  await page.setInputFiles('#fileInput', file);
+  await page.waitForTimeout(300);
+  expect(await ink(page, cx - 120, cy - 30, 60, 12)).toBeGreaterThan(300);
+  expect(await ink(page, cx - 120, cy - 6, 60, 12)).toBe(0);
+
+  // un PNG da Apri si posiziona come un'immagine incollata
+  await page.setInputFiles('#fileInput', { name: 'foto.png', mimeType: 'image/png', buffer: await pngBuffer(page) });
+  await expect(page.locator('#placing')).toHaveCount(1);
+  await page.keyboard.press('Escape');
+
+  // un PDF che non so leggere dà un messaggio
+  await page.setInputFiles('#fileInput', { name: 'rotto.pdf', mimeType: 'application/pdf', buffer: Buffer.from('%PDF-1.4 niente') });
+  await expect(page.locator('#toast')).toContainText('PDF');
   noErrors(errors);
 });

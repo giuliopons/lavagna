@@ -15,6 +15,8 @@ function textMetrics(s) {
   return { base: (lineH(s) - (A + D)) / 2 + A };
 }
 
+export const textBase = s => textMetrics(s).base;
+
 export function textWidth(t, s) {
   measure.font = textFont(s);
   return t.split('\n').reduce((w, l) => Math.max(w, measure.measureText(l).width), 0);

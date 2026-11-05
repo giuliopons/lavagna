@@ -1,5 +1,40 @@
 // Geometria del tratto: curve tra i punti medi. Stesso codice dal vivo e in ridisegno.
 
+/* Forme importate da PDF: contorni esatti, terne x, y, segno (1 inizio, 2 chiusura) */
+const shapePaths = new WeakMap();
+
+export function shapePath(op) {
+  let path = shapePaths.get(op);
+  if (path) return path;
+  path = new Path2D();
+  const a = op.p;
+  for (let i = 0; i < a.length; i += 3) {
+    if (a[i + 2] === 1) path.moveTo(a[i], a[i + 1]);
+    else path.lineTo(a[i], a[i + 1]);
+    if (a[i + 2] === 2) path.closePath();
+  }
+  shapePaths.set(op, path);
+  return path;
+}
+
+const CAPS = ['butt', 'round', 'square'], JOINS = ['miter', 'round', 'bevel'];
+
+export function drawShape(ctx, op) {
+  const path = shapePath(op);
+  ctx.save();
+  if (op.a != null) ctx.globalAlpha = op.a;
+  if (op.mul) ctx.globalCompositeOperation = 'multiply';
+  if (op.c) { ctx.fillStyle = op.c; ctx.fill(path, op.fr || 'nonzero'); }
+  if (op.sc) {
+    ctx.strokeStyle = op.sc;
+    ctx.lineWidth = op.sw;
+    ctx.lineCap = CAPS[op.lc || 0];
+    ctx.lineJoin = JOINS[op.lj || 0];
+    ctx.stroke(path);
+  }
+  ctx.restore();
+}
+
 export function styleCtx(ctx, op) {
   ctx.lineCap = 'round';
   ctx.lineJoin = 'round';
