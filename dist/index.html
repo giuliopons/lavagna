@@ -4,13 +4,14 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Lavagna a mano libera</title>
-  <script defer src="./assets/index-DH_y_m7C.js"></script>
-  <link rel="stylesheet" href="./assets/style-DYkjn_dh.css">
+  <script defer src="./assets/index-8pWg5t03.js"></script>
+  <link rel="stylesheet" href="./assets/style-C1UFB95z.css">
   <link rel="manifest" href="manifest.webmanifest">
   <meta name="theme-color" content="#20252c">
   <meta name="description" content="Lavagna per scrivere a mano libera con la penna.">
-  <link rel="icon" href="icons/icon-192.png">
-  <link rel="apple-touch-icon" href="icons/icon-192.png">
+  <link rel="icon" href="icons/favicon.ico" sizes="48x48">
+  <link rel="icon" href="icons/favicon.svg" type="image/svg+xml">
+  <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
 </head>
 <body>
 <div id="board">
@@ -50,24 +51,32 @@
     <button class="btn" id="undo" title="Annulla (Ctrl+Z)" aria-label="Annulla"><svg viewBox="0 0 24 24"><path d="M8.5 5L4 9.5 8.5 14"/><path d="M4 9.5h10.5a5 5 0 0 1 0 10H9"/></svg></button>
     <button class="btn" id="redo" title="Ripeti (Ctrl+Y)" aria-label="Ripeti"><svg viewBox="0 0 24 24"><path d="M15.5 5L20 9.5 15.5 14"/><path d="M20 9.5H9.5a5 5 0 0 0 0 10H15"/></svg></button>
     <button class="btn" id="clear" title="Pulisci il foglio" aria-label="Pulisci il foglio"><svg viewBox="0 0 24 24"><path d="M4 7h16"/><path d="M9.5 7V4.5h5V7"/><path d="M6.5 7l.9 12.5h9.2L17.5 7"/></svg></button>
-    <button class="btn" id="lowLat" title="" aria-label="Bassa latenza"><svg viewBox="0 0 24 24"><path d="M13 3L5.5 13.5H11L10 21l8.5-11H13z"/></svg></button>
-    <button class="btn" id="info" title="Nome e statistiche del foglio (I)" aria-label="Nome e statistiche del foglio" aria-pressed="false" aria-controls="panel"><svg viewBox="0 0 24 24"><path d="M5 20V12M10 20V5M15 20v-9M20 20v-5"/></svg></button>
+    <button class="btn" id="info" title="Impostazioni e statistiche (I)" aria-label="Impostazioni e statistiche" aria-pressed="false" aria-controls="panel"><svg viewBox="0 0 24 24"><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/><circle cx="12" cy="12" r="3"/></svg></button>
     <button class="btn" id="clean" title="Vista pulita per lo screenshot (O)" aria-label="Vista pulita per lo screenshot"><svg viewBox="0 0 24 24"><path d="M2.5 12S6 5.5 12 5.5 21.5 12 21.5 12 18 18.5 12 18.5 2.5 12 2.5 12z"/><circle cx="12" cy="12" r="3"/></svg></button>
     <button class="btn" id="full" title="Schermo intero (F)" aria-label="Schermo intero"><svg viewBox="0 0 24 24"><path id="fullPath" d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5"/></svg></button>
   </div>
 </div>
-<section id="panel" aria-label="Foglio" hidden>
+<section id="panel" aria-label="Impostazioni e statistiche" hidden>
   <div class="panel-head">
     <label for="sheetName">Nome del file</label>
     <button class="btn" id="panelClose" title="Chiudi (Esc)" aria-label="Chiudi il pannello"><svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
   </div>
   <input type="text" id="sheetName" spellcheck="false" autocomplete="off">
+  <div class="opt">
+    <label for="lowLat">Bassa latenza</label>
+    <input type="checkbox" id="lowLat" role="switch" aria-describedby="lowLatNote">
+  </div>
+  <p class="opt-note" id="lowLatNote"></p>
   <table id="stats">
     <thead><tr><th>Contenuto</th><th class="num">Quantità</th><th class="num">Peso</th><th class="num pct"></th></tr></thead>
     <tbody id="statsBody"></tbody>
     <tfoot><tr><th>Totale</th><td class="num" id="statsTotN"></td><td class="num" id="statsTotB"></td><td></td></tr></tfoot>
   </table>
   <dl id="statsFacts"></dl>
+  <footer class="panel-foot">
+    <span id="appVersion"></span>
+    <a href="https://barattalo.it" target="_blank" rel="noopener">fatto da Giulio Pons con 🧠+ 💙</a>
+  </footer>
 </section>
 <input type="file" id="fileInput" accept=".json,application/json,.pdf,application/pdf,.png,.jpg,.jpeg,.webp,.gif,image/*" aria-label="Scegli una lavagna, un PDF o un'immagine" hidden>
 <div id="toast" role="status" hidden></div>
