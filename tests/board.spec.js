@@ -302,6 +302,36 @@ test('selezione: l\'anello attorno alla maniglia ruota, anche i testi', async ({
   noErrors(errors);
 });
 
+test('selezione: porta davanti e manda dietro, con pulsanti e PagSu/PagGiù', async ({ page }) => {
+  const errors = await openBoard(page);
+  await page.locator('#colors .swatch').nth(2).click();          // rosso
+  await line(page, 400, 150, 400, 350);
+  await page.locator('#colors .swatch').nth(0).click();          // nero, disegnato sopra
+  await line(page, 250, 250, 550, 250);
+  const top = async () => { const [r, g] = await pixel(page, 400, 250); return r > 150 && g < 100 ? 'rosso' : r < 90 ? 'nero' : 'altro'; };
+  expect(await top()).toBe('nero');
+
+  await page.keyboard.press('v');
+  await page.mouse.click(300, 250);                              // seleziona la linea nera
+  await expect(page.locator('#selOrder button')).toHaveCount(2);
+  await page.click('#selOrder [data-order=back]');
+  await page.waitForTimeout(60);
+  expect(await top()).toBe('rosso');
+  await expect(page.locator('#selBox')).toHaveCount(1);          // la selezione resta
+
+  await page.keyboard.press('PageUp');
+  await page.waitForTimeout(60);
+  expect(await top()).toBe('nero');
+  await page.keyboard.press('PageDown');
+  await page.waitForTimeout(60);
+  expect(await top()).toBe('rosso');
+
+  await page.keyboard.press('Control+z');
+  await page.waitForTimeout(60);
+  expect(await top()).toBe('nero');
+  noErrors(errors);
+});
+
 test('copia, incolla e taglia con la tastiera', async ({ page, context }) => {
   await context.grantPermissions(['clipboard-read', 'clipboard-write']);
   const errors = await openBoard(page);

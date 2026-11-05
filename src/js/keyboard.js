@@ -5,7 +5,7 @@ import { board } from './dom.js';
 import { doOpen, doSave } from './file.js';
 import { redo, undo } from './history.js';
 import { cancelPlace, commitPlace } from './images.js';
-import { clearSel, selDelete, setSel } from './selection.js';
+import { clearSel, selDelete, selOrder, setSel } from './selection.js';
 import { isPanelOpen, togglePanel } from './sheet-info.js';
 import { S } from './state.js';
 import { setTool } from './tray.js';
@@ -21,6 +21,7 @@ export function initKeyboard() {
     if (S.place && ['Escape', 'Delete', 'Backspace'].includes(e.key)) { e.preventDefault(); cancelPlace(); return; }
     if (S.place && e.key === 'Enter') { commitPlace(); return; }
     if (S.sel && (e.key === 'Delete' || e.key === 'Backspace')) { e.preventDefault(); selDelete(); return; }
+    if (S.sel && (e.key === 'PageUp' || e.key === 'PageDown')) { e.preventDefault(); selOrder(e.key === 'PageUp'); return; }
     if (S.sel && e.key === 'Escape') { clearSel(); return; }
     if (S.tool === 'se' && (e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'a') { e.preventDefault(); setSel(S.ops.filter(o => !o.hidden)); return; }
     if ((e.ctrlKey || e.metaKey) && e.key === '0') { e.preventDefault(); setZoom(1, S.vw / 2, S.vh / 2); return; }

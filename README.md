@@ -17,7 +17,7 @@ Se hai esportato i tuoi lavori dalla lavagna di Microsoft in formato PDF puoi an
 - **Gomma**, anche con la punta gomma della penna.
 - **Testo** scritto da tastiera, da spostare e modificare.
 - **Immagini** incollate dagli appunti o aperte da file.
-- **Selezione** per spostare, scalare, ruotare, copiare, tagliare ed eliminare gruppi di oggetti.
+- **Selezione** per spostare, scalare, ruotare, portare davanti o dietro, copiare, tagliare ed eliminare gruppi di oggetti.
 - **Foglio infinito** con zoom, schermo intero e vista pulita per gli screenshot.
 - **Salvataggio automatico** nel browser e **salvataggio su file** `.json`.
 - **Import dei PDF** esportati dalla lavagna Microsoft: tratti, testi e immagini tornano modificabili.
@@ -63,6 +63,7 @@ Colore e spessore si scelgono nel vassoio in basso.
 | Ctrl+Z / Ctrl+Y | Annulla / Ripeti |
 | Ctrl+C / Ctrl+X / Ctrl+V | Copia / Taglia / Incolla, anche le immagini |
 | Canc | Elimina la selezione |
+| PagSu / PagGiù | Porta la selezione davanti / dietro agli altri oggetti (anche con i pulsanti sopra il riquadro) |
 | Ctrl+A | Seleziona tutto, con lo strumento selezione |
 | I | Impostazioni: nome del foglio, bassa latenza, statistiche |
 | F | Schermo intero |

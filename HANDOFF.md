@@ -76,6 +76,10 @@ Attorno al tondo della scala c'è un anello invisibile (`#selRotate`, 52 px): pa
 - Un file con `r` ha `version: 2`: le versioni vecchie della lavagna lo aprono ma disegnano testi e immagini dritti.
 - Non provato: rotazione con la penna vera e su touch.
 
+### 4e. Ordine degli oggetti (fatto)
+
+Sopra l'angolo destro della selezione ci sono due pulsanti: porta davanti e manda dietro; da tastiera PagSu e PagGiù. La selezione va sopra o sotto tutti gli altri oggetti, conservando il suo ordine interno. L'ordine è quello di `S.ops`; Annulla usa il passo `order`, che conserva l'elenco prima e dopo. Non c'è il passo singolo (un livello alla volta).
+
 ### 5. Indicatore di lentezza (dopo i punti 1 e 2)
 
 Non deve contare gli oggetti: a 822 oggetti scatterebbe un avviso sbagliato. Deve misurare il tempo reale di ridisegno e comparire solo se resta alto. La soglia va scelta dopo le correzioni, misurando sulla macchina dell'utente.

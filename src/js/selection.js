@@ -1,4 +1,4 @@
-// Strumento selezione: riquadro, clic, trascinamento, scala, rotazione ed eliminazione.
+// Strumento selezione: riquadro, clic, trascinamento, scala, rotazione, ordine ed eliminazione.
 
 import { board, world } from './dom.js';
 import { afterChange, record } from './history.js';
@@ -45,7 +45,13 @@ export function setSel(list) {
   const handle = document.createElement('div');
   handle.id = 'selHandle';
   handle.title = 'Trascina per ingrandire o rimpicciolire';
-  box.append(ring, handle);
+  // sopra il riquadro: porta davanti e manda dietro
+  const order = document.createElement('div');
+  order.id = 'selOrder';
+  order.innerHTML =
+    '<button type="button" data-order="front" title="Porta davanti (PagSu)" aria-label="Porta davanti"><svg viewBox="0 0 24 24"><path d="M5 4h14M12 20V8M7 13l5-5 5 5"/></svg></button>' +
+    '<button type="button" data-order="back" title="Manda dietro (PagGiù)" aria-label="Manda dietro"><svg viewBox="0 0 24 24"><path d="M5 20h14M12 4v12M7 11l5 5 5-5"/></svg></button>';
+  box.append(order, ring, handle);
   world.appendChild(box);
   S.sel = { ops: list, bb, box };
 }
@@ -90,6 +96,8 @@ function inRect(o, r) {
 }
 
 export function selDown(e) {
+  const btn = e.target.closest?.('#selOrder button');
+  if (btn) { selOrder(btn.dataset.order === 'front'); return; }
   try { board.setPointerCapture(e.pointerId); } catch {}
   if (S.sel && (e.target === S.sel.box || e.target.id === 'selHandle' || e.target.id === 'selRotate')) {
     const mode = e.target.id === 'selHandle' ? 'scale' : e.target.id === 'selRotate' ? 'rotate' : 'move';
@@ -216,6 +224,20 @@ export function selDragEnd() {
   for (const o of b) refresh(o.bb);
   float.remove();
   setSel(b);
+  afterChange();
+}
+
+/* Ordine: la selezione va sopra o sotto tutti gli altri oggetti, conservando il suo ordine interno */
+export function selOrder(front) {
+  if (!S.sel) return;
+  const mine = new Set(S.sel.ops);
+  const sel = S.ops.filter(o => mine.has(o)), rest = S.ops.filter(o => !mine.has(o));
+  const b = front ? [...rest, ...sel] : [...sel, ...rest];
+  if (b.every((o, i) => o === S.ops[i])) return;
+  const a = S.ops;
+  S.ops = b;
+  record({ t: 'order', a, b, bb: S.sel.bb });
+  refresh(S.sel.bb);
   afterChange();
 }
 

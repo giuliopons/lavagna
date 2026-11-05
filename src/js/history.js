@@ -33,6 +33,10 @@ function apply(h, undoing) {
       else { S.ops.splice(h.i, 1); S.ops.push(h.b); }
       refresh(h.a.bb); refresh(h.b.bb);
       break;
+    case 'order':
+      S.ops = undoing ? h.a : h.b;
+      refresh(h.bb);
+      break;
     case 'addmany':
       if (undoing) S.ops.splice(S.ops.length - h.ops.length, h.ops.length);
       else S.ops.push(...h.ops);
