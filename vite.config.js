@@ -19,17 +19,18 @@ export default defineConfig(({ mode }) => {
   return {
     root: 'src',
     base: './',
-    publicDir: pwa ? '../public' : false,
+    // icone e manifest anche in sviluppo; il bench è un file unico e non li usa
+    publicDir: bench ? false : '../public',
     define: {
       __PWA__: pwa,
       __BENCH__: bench,
       __DEBUG_KEY__: !pwa,
     },
-    plugins: pwa
+    plugins: bench ? [viteSingleFile()] : [{
+      name: 'pwa-head',
+      transformIndexHtml: () => PWA_HEAD.map(([tag, attrs]) => ({ tag, attrs, injectTo: 'head' })),
+    }, ...(pwa
       ? [{
-          name: 'pwa-head',
-          transformIndexHtml: () => PWA_HEAD.map(([tag, attrs]) => ({ tag, attrs, injectTo: 'head' })),
-        }, {
           // Script classico e niente crossorigin: così la cartella si apre anche dal disco (file://),
           // dove i moduli e le richieste CORS sono bloccati
           name: 'classic-script',
@@ -41,7 +42,7 @@ export default defineConfig(({ mode }) => {
               .replace(/(<link rel="stylesheet") crossorigin/g, '$1'),
           },
         }]
-      : bench ? [viteSingleFile()] : [],
+      : [])],
     build: {
       outDir: pwa ? '../dist' : `../dist/${mode}`,
       emptyOutDir: true,
