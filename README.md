@@ -12,5 +12,6 @@ Se hai esportato i tuoi lavori dalla lavagna di Microsoft in formato PDF puoi an
 
 # ISTRUZIONI
 
+<img width="1242" height="61" alt="{04EAA16B-C34C-4A34-B4E6-71F153D35F5D}" src="https://github.com/user-attachments/assets/35c673d6-ca9d-42f3-ac24-1ec6f82839ed" />
 
 
