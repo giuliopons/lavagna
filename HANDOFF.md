@@ -77,12 +77,14 @@ Il foglio reale ha un'immagine da 714×1298 mostrata a 210×382, che pesa 1,8 MB
 
 Proposta fatta all'utente, senza risposta: togliere il lampo dal vassoio e lasciarlo su un tasto, indicato nelle istruzioni. La bassa latenza resta attiva di default.
 
+### 9. Multilingua (priorità bassa)
+
+Richiesta dell'utente. Oggi testi dell'interfaccia, title, aria-label e messaggi sono in italiano, sparsi in `index.html` e nei moduli. Servirebbe un modulo con le stringhe per lingua e la scelta dalla lingua del browser. Da decidere con l'utente: quali lingue e se serve un selettore. La regola "Lingua: italiano" in `CLAUDE.md` resta valida per commenti e codice.
+
 ## Non provato
 
-- `tests/builds.spec.js` › pagina di copia: fallisce su questa macchina anche senza modifiche, perché gli appunti di Chromium aggiungono spazi a fine riga.
-
 - Penna Wacom reale: pressione, tasto laterale, punta gomma, fluidità dopo la divisione in moduli.
-- Vivaldi e Windows, compreso `avvia-lavagna.bat`.
+- Vivaldi e Windows.
 - Installazione reale della PWA da HTTPS, e il suo comportamento in Vivaldi.
 - La finestra di scelta del file per Salva e Apri: i test usano download e campo file.
 - Il salvataggio nella pagina pubblicata con la capability `downloads`.

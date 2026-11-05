@@ -22,12 +22,10 @@ Se il browser di Playwright è già installato altrove: `PW_CHROMIUM=/percorso/c
 | File in `dist` | Uso |
 |---|---|
 | `lavagna-a-mano-libera.html` | Copia locale, tutto in un file, font compresi |
-| `avvia-lavagna.bat` | Avvia la copia locale su `localhost:8765` a tutto schermo, su Windows |
 | `artifact.html` | Pagina da pubblicare su Claude: senza doctype, `head` e `body`, che aggiunge il visualizzatore |
-| `copia-lavagna.html` | Pagina con i file da copiare, per quando il download non funziona |
 | `pwa/` | Cartella da caricare sul sito. La versione del service worker si calcola dai file |
 
-Pagine pubblicate: lavagna `https://claude.ai/artifact/8BaEEUjh9kPeduqHzHkdXT` (dichiara la capability `downloads`), copia `https://claude.ai/artifact/MYJef6EotNQKCDsZpXSihJ`.
+Pagine pubblicate: lavagna `https://claude.ai/artifact/8BaEEUjh9kPeduqHzHkdXT` (dichiara la capability `downloads`).
 
 ## Struttura di `src/js`
 

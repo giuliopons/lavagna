@@ -1,12 +1,10 @@
 // Genera tutto cio' che si distribuisce, nella cartella dist:
 //   lavagna-a-mano-libera.html   copia locale in un solo file
-//   avvia-lavagna.bat            avvio della copia locale su Windows
 //   artifact.html                pagina da pubblicare su Claude, senza intestazione HTML
-//   copia-lavagna.html           pagina per copiare i file quando il download non funziona
 //   pwa/                         cartella da caricare sul sito
 import { build } from 'vite';
 import { createHash } from 'node:crypto';
-import { copyFileSync, mkdirSync, readFileSync, readdirSync, rmSync, statSync, writeFileSync } from 'node:fs';
+import { mkdirSync, readFileSync, readdirSync, rmSync, statSync, writeFileSync } from 'node:fs';
 import { join, relative, sep } from 'node:path';
 
 const DIST = 'dist';
@@ -45,13 +43,6 @@ writeFileSync(join(DIST, 'lavagna-a-mano-libera.html'), standalone);
 // ---------- Pagina pubblicata: il visualizzatore aggiunge da solo l'intestazione ----------
 writeFileSync(join(DIST, 'artifact.html'), `${title}\n<style>${style}</style>\n${markup}\n<script>${script}</script>\n`);
 
-// ---------- Avvio su Windows e pagina di copia ----------
-copyFileSync('tools/avvia-lavagna.bat', join(DIST, 'avvia-lavagna.bat'));
-const bat = readFileSync('tools/avvia-lavagna.bat', 'latin1');
-const data = JSON.stringify({ html: standalone, bat }).replace(/</g, '\\u003c');
-const copyPage = readFileSync('scripts/templates/copia-lavagna.html', 'utf8').replace('__DATA__', () => data);
-writeFileSync(join(DIST, 'copia-lavagna.html'), copyPage);
-
 // ---------- Service worker: elenco dei file e versione calcolati dai file stessi ----------
 const PWA = join(DIST, 'pwa');
 const walk = dir => readdirSync(dir).flatMap(n => {
@@ -68,4 +59,4 @@ writeFileSync(join(PWA, 'sw.js'), sw);
 
 rmSync(join(DIST, 'single'), { recursive: true, force: true });
 const kb = f => Math.round(statSync(join(DIST, f)).size / 1024) + ' KB';
-console.log(`Fatto: lavagna-a-mano-libera.html ${kb('lavagna-a-mano-libera.html')}, artifact.html ${kb('artifact.html')}, copia-lavagna.html ${kb('copia-lavagna.html')}, pwa/ ${files.length + 1} file`);
+console.log(`Fatto: lavagna-a-mano-libera.html ${kb('lavagna-a-mano-libera.html')}, artifact.html ${kb('artifact.html')}, pwa/ ${files.length + 1} file`);
