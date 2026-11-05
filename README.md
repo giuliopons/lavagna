@@ -1,6 +1,8 @@
 Quando Microsoft ha deciso di chiudere il tool Whiteboard ci sono rimasto molto male. Ho scritto i miei appunti lì dentro per anni.
+
 Appunti di riunioni, progetti veri, idee, spiegazioni di scuola per i miei studenti...
-Chiuso.
+
+**Chiuso.**
 
 <img width="1280" height="912" alt="image" src="https://github.com/user-attachments/assets/c9f8b128-7574-481a-8152-76190c2b8d74" />
 
