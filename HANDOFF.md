@@ -62,6 +62,12 @@ Apri accetta `.json`, `.pdf` e immagini. Un PDF della lavagna Microsoft si aggiu
 - Non provato: PDF di altri programmi (object stream, cifratura e font senza ToUnicode non sono gestiti; arriva un messaggio), finestra di scelta del file in Vivaldi.
 - Le versioni vecchie della lavagna non sanno disegnare `sh`: un file con forme va aperto con questa versione.
 
+### 4c. Scalare la selezione (fatto)
+
+La selezione ha una maniglia tonda nell'angolo in basso a destra. Trascinandola si scala tutto il gruppo dall'angolo in alto a sinistra, con le proporzioni fisse; durante il gesto si scala la tela del gruppo, alla fine `scaleOp` (`objects.js`) ricalcola gli oggetti. Si scalano anche gli spessori dei tratti, le gomme agganciate, la dimensione dei testi e il bordo delle forme. Annulla usa lo stesso passo `selmove` dello spostamento. Limiti: da 8 px a 20 volte.
+
+- Visto in uno screenshot: un tratto ingrandito mostra piccoli rigonfiamenti alle giunture dei segmenti. Il tratto è disegnato a pezzi con estremità tonde, e su coordinate a metà pixel i bordi sfumati si sommano. Un tratto disegnato direttamente a quello spessore, con coordinate intere, è liscio. Da controllare con la penna vera: se si nota, va disegnato il tratto come un solo percorso quando lo spessore è costante.
+
 ### 5. Indicatore di lentezza (dopo i punti 1 e 2)
 
 Non deve contare gli oggetti: a 822 oggetti scatterebbe un avviso sbagliato. Deve misurare il tempo reale di ridisegno e comparire solo se resta alto. La soglia va scelta dopo le correzioni, misurando sulla macchina dell'utente.

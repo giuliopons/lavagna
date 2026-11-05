@@ -4,7 +4,7 @@ import { board, world } from './dom.js';
 import { afterChange, record } from './history.js';
 import { toWorld } from './input.js';
 import { hits, paint, refresh } from './layers.js';
-import { shiftBB, shiftOp } from './objects.js';
+import { scaleOp, shiftOp } from './objects.js';
 import { S } from './state.js';
 import { shapePath } from './stroke.js';
 
@@ -30,6 +30,11 @@ export function setSel(list) {
   box.style.top = bb[1] + 'px';
   box.style.width = bb[2] - bb[0] + 'px';
   box.style.height = bb[3] - bb[1] + 'px';
+  // maniglia per scalare, nell'angolo in basso a destra
+  const handle = document.createElement('div');
+  handle.id = 'selHandle';
+  handle.title = 'Trascina per ingrandire o rimpicciolire';
+  box.appendChild(handle);
   world.appendChild(box);
   S.sel = { ops: list, bb, box };
 }
@@ -75,8 +80,9 @@ function inRect(o, r) {
 
 export function selDown(e) {
   try { board.setPointerCapture(e.pointerId); } catch {}
-  if (S.sel && e.target === S.sel.box) {
-    S.gest = { type: 'seldrag', id: e.pointerId, sx: e.clientX, sy: e.clientY, dx: 0, dy: 0, float: null };
+  if (S.sel && (e.target === S.sel.box || e.target.id === 'selHandle')) {
+    const mode = e.target.id === 'selHandle' ? 'scale' : 'move';
+    S.gest = { type: 'seldrag', mode, id: e.pointerId, sx: e.clientX, sy: e.clientY, dx: 0, dy: 0, k: 1, float: null };
     return;
   }
   clearSel();
@@ -147,23 +153,34 @@ export function selDrag(e) {
     if (Math.hypot(e.clientX - g.sx, e.clientY - g.sy) < 3) return;
     g.float = startFloat();
   }
+  if (g.mode === 'scale') {
+    // l'angolo in alto a sinistra resta fermo; il fattore viene dalla diagonale, così le proporzioni restano
+    const bb = S.sel.bb, w = bb[2] - bb[0], h = bb[3] - bb[1];
+    const k = ((w + g.dx) * w + (h + g.dy) * h) / (w * w + h * h);
+    g.k = Math.min(20, Math.max(8 / Math.max(w, h, 1), k));
+    g.float.style.transformOrigin = '0 0';
+    g.float.style.transform = `scale(${g.k})`;
+    S.sel.box.style.width = w * g.k + 'px';
+    S.sel.box.style.height = h * g.k + 'px';
+    return;
+  }
   const tf = `translate3d(${g.dx}px,${g.dy}px,0)`;
   g.float.style.transform = tf;
   S.sel.box.style.transform = tf;
 }
 
 export function selDragEnd() {
-  const { float, dx, dy } = S.gest;
+  const { float, mode, dx, dy, k } = S.gest;
   S.gest = null;
   if (!float || !S.sel) return;
   const a = S.sel.ops, oldBB = S.sel.bb;
   const idx = a.map(o => S.ops.indexOf(o));
-  const b = a.map(o => shiftOp(o, dx, dy));
+  const b = mode === 'scale' ? a.map(o => scaleOp(o, oldBB[0], oldBB[1], k)) : a.map(o => shiftOp(o, dx, dy));
   for (const o of a) o.hidden = false;
-  idx.forEach((i, k) => { S.ops[i] = b[k]; });
+  idx.forEach((i, j) => { S.ops[i] = b[j]; });
   record({ t: 'selmove', idx, a, b });
   refresh(oldBB);
-  refresh(shiftBB(oldBB, dx, dy));
+  for (const o of b) refresh(o.bb);
   float.remove();
   setSel(b);
   afterChange();

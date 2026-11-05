@@ -176,6 +176,60 @@ test('selezione: il gruppo si sposta con la gomma, Canc elimina', async ({ page 
   noErrors(errors);
 });
 
+test('selezione: la maniglia ingrandisce e rimpicciolisce, Annulla torna indietro', async ({ page }) => {
+  const errors = await openBoard(page);
+  await line(page, 100, 150, 300, 150);
+  await page.keyboard.press('g');
+  await line(page, 200, 130, 200, 170);
+  await page.keyboard.press('t');
+  await page.mouse.click(120, 260);
+  await page.keyboard.type('Scala');
+  await page.keyboard.press('Control+Enter');
+
+  await page.keyboard.press('v');
+  await line(page, 70, 100, 400, 330);
+  const box = await rect(page, 'selBox');
+  const hd = await rect(page, 'selHandle');
+  expect(hd).not.toBeNull();
+  // trascinando la maniglia di una larghezza intera la selezione raddoppia
+  const cx = hd.x + hd.w / 2, cy = hd.y + hd.h / 2;
+  await page.mouse.move(cx, cy);
+  await page.mouse.down();
+  await page.mouse.move(cx + box.w, cy + box.h, { steps: 6 });
+  await expect(page.locator('#selFloat')).toHaveCount(1);
+  await page.mouse.up();
+  await page.waitForTimeout(80);
+  await expect(page.locator('#selFloat')).toHaveCount(0);
+  const big = await rect(page, 'selBox');
+  expect(big.x).toBeCloseTo(box.x, 0);
+  expect(big.w / box.w).toBeGreaterThan(1.9);
+  expect(big.w / box.w).toBeLessThan(2.1);
+  // il tratto si allunga, il buco della gomma resta al suo posto relativo
+  const ox = box.x, oy = box.y, at = (x, y) => [ox + (x - ox) * 2, oy + (y - oy) * 2];
+  const [x1, y1] = at(260, 150);
+  expect(await ink(page, x1 - 10, y1 - 8, 20, 16)).toBeGreaterThan(60);
+  const [xh, yh] = at(200, 150);
+  expect(await ink(page, xh - 3, yh - 6, 6, 12)).toBe(0);
+
+  // la maniglia rimpicciolisce
+  const h2 = await rect(page, 'selHandle');
+  await page.mouse.move(h2.x + h2.w / 2, h2.y + h2.h / 2);
+  await page.mouse.down();
+  await page.mouse.move(h2.x + h2.w / 2 - big.w * .75, h2.y + h2.h / 2 - big.h * .75, { steps: 6 });
+  await page.mouse.up();
+  await page.waitForTimeout(80);
+  const small = await rect(page, 'selBox');
+  expect(small.w / big.w).toBeLessThan(.3);
+
+  await page.keyboard.press('Control+z');
+  await page.keyboard.press('Control+z');
+  await page.waitForTimeout(80);
+  await page.keyboard.press('Escape');
+  expect(await ink(page, 220, 140, 70, 20)).toBeGreaterThan(100);
+  expect(await ink(page, x1 - 10, y1 - 8, 20, 16)).toBe(0);
+  noErrors(errors);
+});
+
 test('copia, incolla e taglia con la tastiera', async ({ page, context }) => {
   await context.grantPermissions(['clipboard-read', 'clipboard-write']);
   const errors = await openBoard(page);

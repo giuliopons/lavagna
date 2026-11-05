@@ -69,7 +69,7 @@ button, input { font: inherit; }
 }
 #placing { position: absolute; pointer-events: auto; cursor: move; outline: calc(1.5px * var(--iz)) dashed #5f6b78; outline-offset: calc(2px * var(--iz)); touch-action: none; }
 #world #placing canvas { position: static; width: 100%; height: 100%; }
-#placeHandle { position: absolute; right: calc(-10px * var(--iz)); bottom: calc(-10px * var(--iz)); width: calc(20px * var(--iz)); height: calc(20px * var(--iz)); box-sizing: border-box; border-radius: 50%; background: var(--paper); border: calc(2px * var(--iz)) solid var(--tray); cursor: nwse-resize; touch-action: none; }
+#placeHandle, #selHandle { position: absolute; right: calc(-10px * var(--iz)); bottom: calc(-10px * var(--iz)); width: calc(20px * var(--iz)); height: calc(20px * var(--iz)); box-sizing: border-box; border-radius: 50%; background: var(--paper); border: calc(2px * var(--iz)) solid var(--tray); cursor: nwse-resize; touch-action: none; }
 
 #hint {
   position: absolute; left: 50%; top: 42%; transform: translate(-50%, -50%);

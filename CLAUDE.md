@@ -40,8 +40,8 @@ La stessa cartella si apre anche dal disco con doppio clic: per questo lo script
 | `input.js` | Gesti di penna, mouse e dita, anello della gomma |
 | `text-editor.js` | Editor di testo e trascinamento dei testi |
 | `images.js` | Immagini incollate |
-| `objects.js` | Spostamento degli oggetti e aggancio della gomma |
-| `selection.js` | Strumento selezione |
+| `objects.js` | Spostamento e scala degli oggetti (`shiftOp`, `scaleOp`), aggancio della gomma |
+| `selection.js` | Strumento selezione: riquadro, trascinamento, maniglia per scalare |
 | `clipboard.js` | Copia, taglia, incolla |
 | `history.js` | Annulla e ripeti |
 | `file.js` | Salva e Apri su file. Apri accetta anche PDF (importati) e immagini (da posizionare) |
