@@ -19,7 +19,7 @@ Se il browser di Playwright è già installato altrove: `PW_CHROMIUM=/percorso/c
 
 ## Cosa genera la build
 
-La build scrive in `dist` la lavagna da caricare sul sito: `index.html`, `assets/` (JS, CSS e font separati), icone, manifest e `sw.js`. La versione del service worker si calcola dai file.
+La build scrive in `dist`, che è nel repository: dopo ogni modifica al codice rilancia `npm run build` e includi `dist` nel commit. Contiene la lavagna da caricare sul sito: `index.html`, `assets/` (JS, CSS e font separati), icone, manifest e `sw.js`. La versione del service worker si calcola dai file.
 
 La stessa cartella si apre anche dal disco con doppio clic: per questo lo script è classico (`defer`, formato `iife`) e i tag non hanno `crossorigin`. Da disco i moduli ES e le richieste CORS sono bloccati. Da disco il service worker non parte e il salvataggio automatico è separato da quello del sito.
 
