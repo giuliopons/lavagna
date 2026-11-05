@@ -66,19 +66,8 @@ const baseName = f => f.replace(/\.json$/i, '');
 export async function doSave(saveAs) {
   commitEdit();
   commitPlace();
-  // pagina pubblicata: il salvataggio passa dal visualizzatore
-  const dl = window.claude?.use ? await window.claude.use('downloads') : null;
-  if (dl) {
-    try {
-      await dl.save({ filename: fileName(), data: await docBlob() });
-      toast('File consegnato al browser. Controlla i download.');
-    } catch (err) {
-      if (err?.code !== 'declined') toast('Il salvataggio non è riuscito qui. Usa la copia locale della lavagna.');
-    }
-    return;
-  }
-  // copia locale: si sceglie il file una volta, poi Ctrl+S lo sovrascrive
-  if (window.showSaveFilePicker && !window.claude) {
+  // si sceglie il file una volta, poi Ctrl+S lo sovrascrive
+  if (window.showSaveFilePicker) {
     try {
       // se il nome è cambiato si sceglie di nuovo il file
       if (!fileHandle || saveAs || fileHandle.name !== fileName()) {
@@ -109,7 +98,7 @@ export async function doSave(saveAs) {
 export async function doOpen() {
   commitEdit();
   commitPlace();
-  if (window.showOpenFilePicker && !window.claude) {
+  if (window.showOpenFilePicker) {
     try {
       const [h] = await window.showOpenFilePicker({ types: OPEN_TYPES });
       const f = await h.getFile();

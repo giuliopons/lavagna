@@ -19,13 +19,11 @@ Se il browser di Playwright è già installato altrove: `PW_CHROMIUM=/percorso/c
 
 ## Cosa genera la build
 
-| File in `dist` | Uso |
-|---|---|
-| `lavagna-a-mano-libera.html` | Copia locale, tutto in un file, font compresi |
-| `artifact.html` | Pagina da pubblicare su Claude: senza doctype, `head` e `body`, che aggiunge il visualizzatore |
-| `pwa/` | Cartella da caricare sul sito; si apre anche dal disco (script classico, senza `crossorigin`). La versione del service worker si calcola dai file |
+La build scrive in `dist` la lavagna da caricare sul sito: `index.html`, `assets/` (JS, CSS e font separati), icone, manifest e `sw.js`. La versione del service worker si calcola dai file.
 
-Pagine pubblicate: lavagna `https://claude.ai/artifact/8BaEEUjh9kPeduqHzHkdXT` (dichiara la capability `downloads`).
+La stessa cartella si apre anche dal disco con doppio clic: per questo lo script è classico (`defer`, formato `iife`) e i tag non hanno `crossorigin`. Da disco i moduli ES e le richieste CORS sono bloccati. Da disco il service worker non parte e il salvataggio automatico è separato da quello del sito.
+
+`npm run dev` ha il tasto D del registro eventi; `npm run bench` usa una build a file unico in `dist/bench`, cancellata alla fine.
 
 ## Struttura di `src/js`
 
@@ -55,7 +53,7 @@ Pagine pubblicate: lavagna `https://claude.ai/artifact/8BaEEUjh9kPeduqHzHkdXT` (
 | `sheet-info.js` | Pannello del foglio (tasto I): nome del file, titolo della pagina, statistiche |
 | `keyboard.js` | Scorciatoie |
 | `toast.js` | Messaggi brevi |
-| `debug.js` | Registro eventi sul tasto D, assente nella PWA |
+| `debug.js` | Registro eventi sul tasto D, solo con `npm run dev` |
 
 ## Regole del codice
 
@@ -72,7 +70,6 @@ Pagine pubblicate: lavagna `https://claude.ai/artifact/8BaEEUjh9kPeduqHzHkdXT` (
 
 ## Limiti da ricordare
 
-- La pagina pubblicata non può scaricare file direttamente: `doSave` passa dalla capability `downloads`. Non usa neanche le finestre di scelta del file.
 - Il multiply funziona solo su carta bianca: la lavagna ha un solo aspetto, chiaro.
 - I gesti del mouse di Vivaldi intercettano il tasto destro. La pagina non può impedirlo: si risolve nelle impostazioni del browser o con la barra spaziatrice.
 - La rotella non deve fare nulla: lo zoom con lo scorrimento della Wacom era lento ed è stato tolto su richiesta. Lo zoom passa da slider e Ctrl++ / Ctrl+-.

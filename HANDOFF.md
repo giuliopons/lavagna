@@ -48,7 +48,7 @@ Pannello in alto a destra, dal pulsante con le barre nel vassoio o dal tasto I; 
 - Il nome è salvato nel file (campo `name`, `version` resta 1) e in IndexedDB. Apri prende il nome dal file aperto; Annulla lo ripristina.
 - Con la finestra di scelta, cambiare nome fa scegliere di nuovo il file al Salva successivo; un nome diverso scelto nella finestra diventa il nome del foglio.
 - Pulisci non cambia il nome.
-- Da verificare a mano: il `title` nel visualizzatore di Claude e la finestra di scelta del file in Vivaldi.
+- Da verificare a mano: la finestra di scelta del file in Vivaldi.
 
 ### 4b. Import da PDF e immagini (fatto)
 
@@ -58,7 +58,7 @@ Apri accetta `.json`, `.pdf` e immagini. Un PDF della lavagna Microsoft si aggiu
 - I testi passano da `/ToUnicode` e diventano testi normali, con il font della lavagna. Le immagini (Flate RGB/Gray/Indexed/CMYK con SMask, oppure JPEG) diventano oggetti `im`, ritagliate dalle clip rettangolari.
 - pt PDF × 4/3 = px della lavagna: le misure tornano quelle della lavagna originale.
 - Provato sui 5 PDF dell'utente (`Desktop\Microsoft Whiteboard`): tutti importati in meno di un secondo, a schermo uguali all'originale, testi corretti. Il test usa un PDF sintetico (`samplePdf` in `tests/helpers.js`); i PDF veri restano fuori dal repository.
-- Non provato: PDF di altri programmi (object stream, cifratura e font senza ToUnicode non sono gestiti; arriva un messaggio), finestra di scelta del file in Vivaldi, pagina pubblicata.
+- Non provato: PDF di altri programmi (object stream, cifratura e font senza ToUnicode non sono gestiti; arriva un messaggio), finestra di scelta del file in Vivaldi.
 - Le versioni vecchie della lavagna non sanno disegnare `sh`: un file con forme va aperto con questa versione.
 
 ### 5. Indicatore di lentezza (dopo i punti 1 e 2)
@@ -87,7 +87,7 @@ Richiesta dell'utente. Oggi testi dell'interfaccia, title, aria-label e messaggi
 - Vivaldi e Windows.
 - Installazione reale della PWA da HTTPS, e il suo comportamento in Vivaldi.
 - La finestra di scelta del file per Salva e Apri: i test usano download e campo file.
-- Il salvataggio nella pagina pubblicata con la capability `downloads`.
+- La lavagna aperta dal disco (`dist/index.html`) in Vivaldi.
 - Il pizzico con due dita non fa zoom: su touch le due dita spostano il foglio.
 
 ## Decisioni aperte

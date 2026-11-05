@@ -1,7 +1,7 @@
 import { expect } from '@playwright/test';
 import { deflateSync } from 'node:zlib';
 
-export const PAGE = '/lavagna-a-mano-libera.html';
+export const PAGE = '/';
 export const FIXTURE = 'tests/fixtures/foglio-reale.json';
 
 // Apre la lavagna senza le finestre di scelta del file, che in un test resterebbero aperte

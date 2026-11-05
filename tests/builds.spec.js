@@ -3,49 +3,23 @@ import { existsSync, readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 import { ink, line, noErrors, openBoard } from './helpers.js';
 
-test('copia locale aperta dal disco', async ({ page }) => {
-  const errors = [];
-  page.on('pageerror', e => errors.push(e.message));
-  await page.goto('file://' + resolve('dist/lavagna-a-mano-libera.html'));
-  await page.waitForTimeout(200);
-  expect(await page.title()).toMatch(/^Disegno .+ – Lavagna a mano libera$/);
-  expect(await page.evaluate(() => 'onpointerrawupdate' in window)).toBe(true);
-  await line(page, 200, 200, 500, 200);
-  expect(await ink(page, 200, 190, 300, 20)).toBeGreaterThan(200);
-  expect(await page.evaluate(async () => { await document.fonts.ready; return document.fonts.check('500 16px "Familjen Grotesk"'); })).toBe(true);
-  await page.keyboard.press('d');
-  await expect(page.locator('#debug')).toHaveCount(1);
-  noErrors(errors);
-});
-
-test('cartella pwa aperta dal disco', async ({ page }) => {
+test('lavagna aperta dal disco', async ({ page }) => {
   const errors = [];
   page.on('pageerror', e => errors.push(e.message));
   page.on('console', m => { if (m.type() === 'error') errors.push(m.text()); });
-  const html = readFileSync('dist/pwa/index.html', 'utf8');
+  const html = readFileSync('dist/index.html', 'utf8');
   expect(html).not.toMatch(/type="module"|crossorigin/);
-  await page.goto('file://' + resolve('dist/pwa/index.html'));
+  await page.goto('file://' + resolve('dist/index.html'));
   await page.waitForTimeout(200);
   expect(await page.title()).toMatch(/^Disegno .+ – Lavagna a mano libera$/);
   await line(page, 200, 200, 500, 200);
   expect(await ink(page, 200, 190, 300, 20)).toBeGreaterThan(200);
   expect(await page.evaluate(async () => { await document.fonts.ready; return document.fonts.check('500 16px "Familjen Grotesk"'); })).toBe(true);
-  noErrors(errors);
-});
-
-test('pagina pubblicata: funziona dentro l\'intestazione del visualizzatore', async ({ page }) => {
-  const source = readFileSync('dist/artifact.html', 'utf8');
-  expect(source.startsWith('<title>Lavagna a mano libera</title>')).toBe(true);
-  expect(source).not.toMatch(/<!doctype|<html|<head|<body/i);
-  expect(source).not.toMatch(/\b(?:src|href)="(?!#)[^"]+"/);
-  const errors = await openBoard(page, '/artifact');
-  await line(page, 200, 200, 500, 200);
-  expect(await ink(page, 200, 190, 300, 20)).toBeGreaterThan(200);
   noErrors(errors);
 });
 
 test('PWA: installabile, funziona senza rete, niente tasto D', async ({ page, context }) => {
-  const errors = await openBoard(page, '/pwa/');
+  const errors = await openBoard(page, '/');
   await page.evaluate(() => navigator.serviceWorker.ready);
   await page.waitForTimeout(500);
   const cdp = await context.newCDPSession(page);
@@ -54,8 +28,8 @@ test('PWA: installabile, funziona senza rete, niente tasto D', async ({ page, co
   const { installabilityErrors } = await cdp.send('Page.getInstallabilityErrors');
   expect(installabilityErrors.filter(e => e.errorId !== 'in-incognito')).toEqual([]);
   expect((await cdp.send('Page.getAppManifest')).errors).toEqual([]);
-  expect(existsSync('dist/pwa/sw.js')).toBe(true);
-  expect(readFileSync('dist/pwa/sw.js', 'utf8')).not.toContain('__CACHE__');
+  expect(existsSync('dist/sw.js')).toBe(true);
+  expect(readFileSync('dist/sw.js', 'utf8')).not.toContain('__CACHE__');
 
   await line(page, 200, 200, 500, 260);
   await page.waitForTimeout(1500);

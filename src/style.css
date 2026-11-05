@@ -1,4 +1,4 @@
-/* Base: la pagina pubblicata riceve queste regole anche dal visualizzatore */
+/* Base */
 body { margin: 0; font-size: 14px; }
 img { max-width: 100%; }
 [hidden] { display: none !important; }

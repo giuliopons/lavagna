@@ -5,7 +5,7 @@
   "type": "module",
   "description": "Lavagna per scrivere a mano libera con la penna.",
   "scripts": {
-    "dev": "vite --mode single",
+    "dev": "vite",
     "build": "node scripts/build.mjs",
     "lint": "eslint src scripts tests",
     "test": "npm run build && playwright test",

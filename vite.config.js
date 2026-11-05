@@ -1,10 +1,10 @@
 import { defineConfig } from 'vite';
 import { viteSingleFile } from 'vite-plugin-singlefile';
 
-// Tre uscite dallo stesso sorgente:
-//   single  un solo HTML con tutto dentro, base della copia locale e della pagina pubblicata
-//   pwa     cartella da caricare sul sito, con manifest, icone e service worker
-//   bench   come single, con gli agganci per scripts/bench.mjs
+// Modalità:
+//   pwa          la cartella dist, da caricare sul sito: manifest, icone e service worker
+//   bench        un solo HTML con tutto dentro e gli agganci per scripts/bench.mjs
+//   development  npm run dev, con il tasto D del registro eventi
 const PWA_HEAD = [
   ['link', { rel: 'manifest', href: 'manifest.webmanifest' }],
   ['meta', { name: 'theme-color', content: '#20252c' }],
@@ -14,14 +14,14 @@ const PWA_HEAD = [
 ];
 
 export default defineConfig(({ mode }) => {
-  const pwa = mode === 'pwa';
+  const pwa = mode === 'pwa', bench = mode === 'bench';
   return {
     root: 'src',
     base: './',
     publicDir: pwa ? '../public' : false,
     define: {
       __PWA__: pwa,
-      __BENCH__: mode === 'bench',
+      __BENCH__: bench,
       __DEBUG_KEY__: !pwa,
     },
     plugins: pwa
@@ -40,15 +40,15 @@ export default defineConfig(({ mode }) => {
               .replace(/(<link rel="stylesheet") crossorigin/g, '$1'),
           },
         }]
-      : [viteSingleFile()],
+      : bench ? [viteSingleFile()] : [],
     build: {
-      outDir: `../dist/${mode}`,
+      outDir: pwa ? '../dist' : `../dist/${mode}`,
       emptyOutDir: true,
       target: 'es2022',
       assetsInlineLimit: pwa ? 0 : 100_000_000,
       // Con lo script classico il CSS finirebbe dentro il JS: resta in un file a parte, caricato subito
       cssCodeSplit: !pwa,
-      // Uno script classico in un solo file, sia nel file unico sia nella cartella pwa
+      // Uno script classico in un solo file
       rollupOptions: { output: { format: 'iife' } },
     },
   };
