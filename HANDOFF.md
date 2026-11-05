@@ -39,14 +39,16 @@ In `endStroke` (`input.js`) la gomma si lega a tutto ciò il cui rettangolo tocc
 
 La stessa gomma è ripetuta in ogni oggetto toccato: nel foglio reale 11.070 punti invece di 732, circa 0,23 MB. Va scritta una sola volta in un elenco a parte. I file vecchi devono continuare ad aprirsi e serve aumentare `version`. Non migliora la fluidità.
 
-### 4. Nome del file (funzione nuova, richiesta dall'utente)
+### 4. Nome del file e statistiche (fatto)
 
-- Un foglio ha un nome. Va mostrato nel `title` del browser, per esempio `Riunione – Lavagna a mano libera`.
-- Salva usa il nome come proposta di file, al posto di `lavagna-AAAA-MM-GG-HHMM.json`.
-- Apri prende il nome dal file aperto, senza `.json`. Con la finestra di scelta del file, anche "salva" aggiorna il nome da quello scelto.
-- Il nome va salvato nel file e in IndexedDB, così torna dopo una ricarica. Annulla su un'apertura deve ripristinare anche il nome.
-- Da decidere con l'utente: dove si modifica il nome (campo nel vassoio, che è già pieno, o altro) e il nome di un foglio nuovo.
-- Da verificare: dentro il visualizzatore di Claude il `title` può non arrivare alla scheda del browser. Non è un problema per copia locale e PWA.
+Pannello in alto a destra, dal pulsante con le barre nel vassoio o dal tasto I; Esc lo chiude. In cima c'è il nome del file, poi le statistiche: quantità e peso per tipo, punti, passate di gomma, area usata, tempo dell'ultimo ridisegno completo dello schermo (misurato in `ensureStep`).
+
+- Un nome vuoto diventa `Disegno gg/mm/aaaa hh:mm`. Il titolo della pagina è `<nome> – Lavagna a mano libera`.
+- Nel nome del file `:` diventa `.` e `/ \ * ? " < > |` diventano `-`: Windows non li accetta.
+- Il nome è salvato nel file (campo `name`, `version` resta 1) e in IndexedDB. Apri prende il nome dal file aperto; Annulla lo ripristina.
+- Con la finestra di scelta, cambiare nome fa scegliere di nuovo il file al Salva successivo; un nome diverso scelto nella finestra diventa il nome del foglio.
+- Pulisci non cambia il nome.
+- Da verificare a mano: il `title` nel visualizzatore di Claude e la finestra di scelta del file in Vivaldi.
 
 ### 5. Indicatore di lentezza (dopo i punti 1 e 2)
 
@@ -66,6 +68,8 @@ Proposta fatta all'utente, senza risposta: togliere il lampo dal vassoio e lasci
 
 ## Non provato
 
+- `tests/builds.spec.js` › pagina di copia: fallisce su questa macchina anche senza modifiche, perché gli appunti di Chromium aggiungono spazi a fine riga.
+
 - Penna Wacom reale: pressione, tasto laterale, punta gomma, fluidità dopo la divisione in moduli.
 - Vivaldi e Windows, compreso `avvia-lavagna.bat`.
 - Installazione reale della PWA da HTTPS, e il suo comportamento in Vivaldi.
@@ -75,7 +79,7 @@ Proposta fatta all'utente, senza risposta: togliere il lampo dal vassoio e lasci
 
 ## Decisioni aperte
 
-- **Repository:** il progetto ha git locale, non è ancora su GitHub.
+- **Repository:** remoto `origin` su https://github.com/giuliopons/lavagna.git, non ancora inviato.
 - **Licenza:** da scegliere prima di distribuire. Il font è SIL OFL e la licenza resta in `src/fonts/LICENSE.txt`.
 - **Foglio di prova:** `tests/fixtures/foglio-reale.json` è un foglio vero dell'utente, immagini comprese. Va controllato o sostituito prima di rendere pubblico il repository.
 - **Distribuzione:** PWA dal sito, oppure exe con Electron o Tauri. Per l'exe serve provare la penna e considerare la firma del codice.

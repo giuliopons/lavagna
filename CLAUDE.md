@@ -52,6 +52,7 @@ Pagine pubblicate: lavagna `https://claude.ai/artifact/8BaEEUjh9kPeduqHzHkdXT` (
 | `storage.js` | Salvataggio automatico in IndexedDB |
 | `tray.js` | Vassoio: strumenti, colori, spessore, bassa latenza |
 | `view-modes.js` | Schermo intero e vista pulita |
+| `sheet-info.js` | Pannello del foglio (tasto I): nome del file, titolo della pagina, statistiche |
 | `keyboard.js` | Scorciatoie |
 | `toast.js` | Messaggi brevi |
 | `debug.js` | Registro eventi sul tasto D, assente nella PWA |

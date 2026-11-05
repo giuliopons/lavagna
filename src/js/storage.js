@@ -3,6 +3,7 @@
 import { updateHint } from './history.js';
 import { repaintAll } from './layers.js';
 import { normalizeOps } from './objects.js';
+import { setName, updatePanelSoon } from './sheet-info.js';
 import { S, pan } from './state.js';
 import { syncButtons } from './tray.js';
 import { setView } from './view.js';
@@ -28,7 +29,7 @@ export async function save() {
   if (S.gest) { scheduleSave(); return; }
   try {
     const d = await db();
-    d.transaction('doc', 'readwrite').objectStore('doc').put({ ops: S.ops.map(({ bmp, ...o }) => o), pan: { ...pan }, zoom: S.zoom }, 'main');
+    d.transaction('doc', 'readwrite').objectStore('doc').put({ ops: S.ops.map(({ bmp, ...o }) => o), pan: { ...pan }, zoom: S.zoom, name: S.name }, 'main');
   } catch {}
 }
 
@@ -40,6 +41,7 @@ export async function restore() {
       r.onsuccess = () => res(r.result);
       r.onerror = () => rej(r.error);
     });
+    if (data?.name && !S.ops.length) setName(data.name);
     if (!data || !data.ops || S.ops.length) return;
     const loaded = data.ops.map(o => ({ ...o, hidden: false }));
     await Promise.all(loaded.map(async o => {
@@ -52,5 +54,6 @@ export async function restore() {
     repaintAll();
     updateHint();
     syncButtons();
+    updatePanelSoon();
   } catch {}
 }

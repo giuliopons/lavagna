@@ -76,3 +76,5 @@ S.sel = null;
 S.clip = null;
 S.cleanMode = false;
 S.saveTimer = 0;
+S.name = '';  // nome del foglio, usato per il file e il titolo della pagina
+S.lastRedraw = null;  // ultimo ridisegno completo dello schermo: { ms, tiles }

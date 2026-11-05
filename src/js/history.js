@@ -4,6 +4,7 @@ import { hint } from './dom.js';
 import { commitPlace } from './images.js';
 import { dropTiles, refresh, repaintAll } from './layers.js';
 import { clearSel } from './selection.js';
+import { setName, updatePanelSoon } from './sheet-info.js';
 import { S } from './state.js';
 import { scheduleSave } from './storage.js';
 import { commitEdit } from './text-editor.js';
@@ -56,6 +57,7 @@ function apply(h, undoing) {
     case 'load':
       S.ops = undoing ? h.a : h.b;
       { const v = undoing ? h.pa : h.pb; setView(v.x, v.y, v.z); }
+      if (h.nb) setName(undoing ? h.na : h.nb);
       break;
     case 'clear':
       S.ops = undoing ? h.ops : [];
@@ -96,6 +98,6 @@ export function clearBoard() {
   toast('Foglio pulito. Annulla per riprenderlo.');
 }
 
-export function afterChange() { updateHint(); syncButtons(); scheduleSave(); }
+export function afterChange() { updateHint(); syncButtons(); scheduleSave(); updatePanelSoon(); }
 
 export function updateHint() { hint.hidden = S.ops.length > 0 || !!S.edit || !!S.gest || !!S.place; }

@@ -6,6 +6,7 @@ import { doOpen, doSave } from './file.js';
 import { redo, undo } from './history.js';
 import { cancelPlace, commitPlace } from './images.js';
 import { clearSel, selDelete, setSel } from './selection.js';
+import { isPanelOpen, togglePanel } from './sheet-info.js';
 import { S } from './state.js';
 import { setTool } from './tray.js';
 import { setZoom } from './view.js';
@@ -14,7 +15,7 @@ import { setClean, toggleFull } from './view-modes.js';
 export function initKeyboard() {
   /* Tastiera */
   window.addEventListener('keydown', e => {
-    if (e.target.matches?.('textarea')) return;
+    if (e.target.matches?.('textarea, input[type=text]')) return;
     if (S.place && ['Escape', 'Delete', 'Backspace'].includes(e.key)) { e.preventDefault(); cancelPlace(); return; }
     if (S.place && e.key === 'Enter') { commitPlace(); return; }
     if (S.sel && (e.key === 'Delete' || e.key === 'Backspace')) { e.preventDefault(); selDelete(); return; }
@@ -25,6 +26,7 @@ export function initKeyboard() {
     if ((e.ctrlKey || e.metaKey) && e.key === '-') { e.preventDefault(); setZoom(S.zoom / 1.25, S.vw / 2, S.vh / 2); return; }
     if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 's') { e.preventDefault(); doSave(e.shiftKey); return; }
     if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'o') { e.preventDefault(); doOpen(); return; }
+    if (e.key === 'Escape' && isPanelOpen() && !S.sel && !S.place) { togglePanel(false); return; }
     if (S.cleanMode) {
       if (e.key === 'Escape' || e.key.toLowerCase() === 'o') setClean(false);
       return;
@@ -38,6 +40,7 @@ export function initKeyboard() {
     if (map[k]) setTool(map[k]);
     else if (k === 'f') toggleFull();
     else if (k === 'o') setClean(true);
+    else if (k === 'i') togglePanel();
     else if (__DEBUG_KEY__ && k === 'd') toggleDebug();
   });
   window.addEventListener('keyup', e => {

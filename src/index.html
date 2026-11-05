@@ -46,10 +46,24 @@
     <button class="btn" id="redo" title="Ripeti (Ctrl+Y)" aria-label="Ripeti"><svg viewBox="0 0 24 24"><path d="M15.5 5L20 9.5 15.5 14"/><path d="M20 9.5H9.5a5 5 0 0 0 0 10H15"/></svg></button>
     <button class="btn" id="clear" title="Pulisci il foglio" aria-label="Pulisci il foglio"><svg viewBox="0 0 24 24"><path d="M4 7h16"/><path d="M9.5 7V4.5h5V7"/><path d="M6.5 7l.9 12.5h9.2L17.5 7"/></svg></button>
     <button class="btn" id="lowLat" title="" aria-label="Bassa latenza"><svg viewBox="0 0 24 24"><path d="M13 3L5.5 13.5H11L10 21l8.5-11H13z"/></svg></button>
+    <button class="btn" id="info" title="Nome e statistiche del foglio (I)" aria-label="Nome e statistiche del foglio" aria-pressed="false" aria-controls="panel"><svg viewBox="0 0 24 24"><path d="M5 20V12M10 20V5M15 20v-9M20 20v-5"/></svg></button>
     <button class="btn" id="clean" title="Vista pulita per lo screenshot (O)" aria-label="Vista pulita per lo screenshot"><svg viewBox="0 0 24 24"><path d="M2.5 12S6 5.5 12 5.5 21.5 12 21.5 12 18 18.5 12 18.5 2.5 12 2.5 12z"/><circle cx="12" cy="12" r="3"/></svg></button>
     <button class="btn" id="full" title="Schermo intero (F)" aria-label="Schermo intero"><svg viewBox="0 0 24 24"><path id="fullPath" d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5"/></svg></button>
   </div>
 </div>
+<section id="panel" aria-label="Foglio" hidden>
+  <div class="panel-head">
+    <label for="sheetName">Nome del file</label>
+    <button class="btn" id="panelClose" title="Chiudi (Esc)" aria-label="Chiudi il pannello"><svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
+  </div>
+  <input type="text" id="sheetName" spellcheck="false" autocomplete="off">
+  <table id="stats">
+    <thead><tr><th>Contenuto</th><th class="num">Quantità</th><th class="num">Peso</th><th class="num pct"></th></tr></thead>
+    <tbody id="statsBody"></tbody>
+    <tfoot><tr><th>Totale</th><td class="num" id="statsTotN"></td><td class="num" id="statsTotB"></td><td></td></tr></tfoot>
+  </table>
+  <dl id="statsFacts"></dl>
+</section>
 <input type="file" id="fileInput" accept=".json,application/json" aria-label="Scegli una lavagna salvata" hidden>
 <div id="toast" role="status" hidden></div>
 <script type="module" src="./js/main.js"></script>

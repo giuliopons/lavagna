@@ -71,7 +71,7 @@ export function cancelPlace() {
 
 export function initImages() {
   window.addEventListener('paste', e => {
-    if (S.cleanMode) return;
+    if (S.cleanMode || e.target.closest?.('#panel')) return;
     const pastedText = e.clipboardData?.getData('text/plain') || '';
     if (pastedText.startsWith(CLIP_PREFIX)) {
       e.preventDefault();

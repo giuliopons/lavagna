@@ -8,7 +8,7 @@ test('copia locale aperta dal disco', async ({ page }) => {
   page.on('pageerror', e => errors.push(e.message));
   await page.goto('file://' + resolve('dist/lavagna-a-mano-libera.html'));
   await page.waitForTimeout(200);
-  expect(await page.title()).toBe('Lavagna a mano libera');
+  expect(await page.title()).toMatch(/^Disegno .+ – Lavagna a mano libera$/);
   expect(await page.evaluate(() => 'onpointerrawupdate' in window)).toBe(true);
   await line(page, 200, 200, 500, 200);
   expect(await ink(page, 200, 190, 300, 20)).toBeGreaterThan(200);

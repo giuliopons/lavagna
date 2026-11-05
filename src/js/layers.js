@@ -2,6 +2,7 @@
 // Disegno delle operazioni sui tasselli e creazione a piccole dosi di quelli vicini allo schermo.
 
 import { $ } from './dom.js';
+import { updatePanelSoon } from './sheet-info.js';
 import { S, T, pan } from './state.js';
 import { drawStroke } from './stroke.js';
 import { drawText } from './text-render.js';
@@ -14,8 +15,12 @@ export function makeLayer(rz) {
   const el = document.createElement('div');
   el.className = 'layer';
   $('layers').appendChild(el);
+  redraw = { ms: 0, tiles: 0 };
   return { el, rz, tiles: new Map(), known: new Set() };
 }
+
+// Misura di un ridisegno completo dello schermo, per il pannello del foglio
+let redraw = null;
 
 function tileAt(ix, iy, create) {
   const key = ix + ',' + iy;
@@ -106,6 +111,7 @@ export function dropTiles() {
 export function repaintAll() {
   dropTiles();
   S.L.known.clear();
+  redraw = { ms: 0, tiles: 0 };
   if (S.backdrop) { S.backdrop.el.remove(); S.backdrop = null; }
   scheduleEnsure();
 }
@@ -139,8 +145,18 @@ export function ensureStep() {
     if (list.length) {
       const t = tileAt(ix, iy, true);
       for (const op of list) paint(t, op);
+      if (redraw) redraw.tiles++;
     }
-    if (performance.now() - start > 6) { scheduleEnsure(); return; }
+    if (performance.now() - start > 6) {
+      if (redraw) redraw.ms += performance.now() - start;
+      scheduleEnsure();
+      return;
+    }
+  }
+  if (redraw) {
+    redraw.ms += performance.now() - start;
+    if (redraw.tiles) { S.lastRedraw = redraw; updatePanelSoon(); }
+    redraw = null;
   }
   if (S.backdrop) { S.backdrop.el.remove(); S.backdrop = null; }
   // limite di memoria: via i tasselli più lontani dallo schermo

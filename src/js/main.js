@@ -9,6 +9,7 @@ import { initKeyboard } from './keyboard.js';
 import { ensureStep, hits, initLayers, paint, repaintAll, scheduleEnsure, sizeTmp } from './layers.js';
 import { makeInk, sizeLive } from './live.js';
 import { S, T, pan } from './state.js';
+import { initSheetInfo, setName } from './sheet-info.js';
 import { restore, save } from './storage.js';
 import { styleEditor } from './text-editor.js';
 import { textBB } from './text-render.js';
@@ -42,6 +43,7 @@ initFile();
 initTray();
 initViewModes();
 initKeyboard();
+initSheetInfo();
 
 window.addEventListener('resize', onResize);
 
@@ -60,6 +62,8 @@ applyPan();
 syncTool();
 
 syncButtons();
+
+setName('');
 
 if (!document.fullscreenEnabled) fullBtn.hidden = true;
 

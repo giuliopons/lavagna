@@ -310,3 +310,59 @@ test('vista pulita: niente griglia né vassoio, la penna non scrive', async ({ p
   expect(before).toBeGreaterThan(100);
   noErrors(errors);
 });
+
+test('pannello del foglio: nome nel titolo e nel file, statistiche', async ({ page }, info) => {
+  const errors = await openBoard(page);
+  await expect(page.locator('#panel')).toBeHidden();
+  await expect(page).toHaveTitle(/^Disegno \d\d\/\d\d\/\d{4} \d\d:\d\d – Lavagna a mano libera$/);
+  await line(page, 200, 200, 500, 200);
+  await page.keyboard.press('e');
+  await line(page, 200, 260, 500, 260);
+  await page.keyboard.press('i');
+  await expect(page.locator('#panel')).toBeVisible();
+  await expect(page.locator('#sheetName')).toHaveValue(/^Disegno /);
+  const rows = page.locator('#statsBody tr');
+  await expect(rows.nth(0).locator('td').first()).toHaveText('1');
+  await expect(rows.nth(1).locator('td').first()).toHaveText('1');
+  await expect(page.locator('#statsTotN')).toHaveText('2');
+
+  // le lettere nel campo non cambiano strumento
+  await page.fill('#sheetName', '');
+  await page.locator('#sheetName').pressSequentially('Riunione: piano');
+  await page.keyboard.press('Enter');
+  await expect(page).toHaveTitle('Riunione: piano – Lavagna a mano libera');
+  await expect(page.locator('#t-hl')).toHaveAttribute('aria-pressed', 'true');
+
+  // vuoto torna al nome automatico
+  await page.fill('#sheetName', '');
+  await page.locator('#sheetName').blur();
+  await expect(page.locator('#sheetName')).toHaveValue(/^Disegno /);
+  await page.fill('#sheetName', 'Riunione: piano');
+  await page.locator('#sheetName').blur();
+
+  const [download] = await Promise.all([page.waitForEvent('download'), page.click('#save')]);
+  expect(download.suggestedFilename()).toBe('Riunione. piano.json');
+  const file = info.outputPath('Lezione 3.json');
+  await download.saveAs(file);
+  expect(JSON.parse(readFileSync(file, 'utf8')).name).toBe('Riunione: piano');
+
+  // aprendo un file il nome viene dal file; Annulla lo ripristina
+  await page.setInputFiles('#fileInput', file);
+  await page.waitForTimeout(300);
+  await expect(page.locator('#sheetName')).toHaveValue('Lezione 3');
+  await expect(page).toHaveTitle('Lezione 3 – Lavagna a mano libera');
+  await page.keyboard.press('Control+z');
+  await page.waitForTimeout(100);
+  await expect(page.locator('#sheetName')).toHaveValue('Riunione: piano');
+
+  // il nome torna dopo una ricarica
+  await page.waitForTimeout(1500);
+  await page.reload();
+  await page.waitForTimeout(500);
+  await expect(page).toHaveTitle('Riunione: piano – Lavagna a mano libera');
+
+  await page.keyboard.press('i');
+  await page.keyboard.press('Escape');
+  await expect(page.locator('#panel')).toBeHidden();
+  noErrors(errors);
+});

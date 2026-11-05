@@ -6,6 +6,7 @@ import { commitPlace } from './images.js';
 import { normalizeOps } from './objects.js';
 import { clearSel } from './selection.js';
 import { S, pan } from './state.js';
+import { fileName, setName } from './sheet-info.js';
 import { commitEdit } from './text-editor.js';
 import { textBB } from './text-render.js';
 import { toast } from './toast.js';
@@ -34,22 +35,25 @@ function dataToBlob(url) {
   return new Blob([u], { type: m[1] });
 }
 
-export async function docBlob() {
-  const list = await Promise.all(S.ops.map(async o => {
-    const { bmp, blob, hidden, masks, ...rest } = o;
-    const out = { ...rest };
-    if (o.p) out.p = round2(o.p);
-    if (masks?.length) out.masks = masks.map(m => ({ k: 'er', bb: m.bb, p: round2(m.p) }));
-    if (o.k === 'im') out.data = await blobToData(blob);
-    return out;
-  }));
-  return new Blob([JSON.stringify({ app: FILE_APP, version: 1, pan: { ...pan }, zoom: S.zoom, ops: list })], { type: 'application/json' });
+// Un oggetto come va nel file, senza i dati dell'immagine
+export function plainOp(o) {
+  const { bmp, blob, hidden, masks, ...rest } = o;
+  const out = { ...rest };
+  if (o.p) out.p = round2(o.p);
+  if (masks?.length) out.masks = masks.map(m => ({ k: 'er', bb: m.bb, p: round2(m.p) }));
+  return out;
 }
 
-function suggestedName() {
-  const d = new Date(), z = n => String(n).padStart(2, '0');
-  return `lavagna-${d.getFullYear()}-${z(d.getMonth() + 1)}-${z(d.getDate())}-${z(d.getHours())}${z(d.getMinutes())}.json`;
+export async function docBlob() {
+  const list = await Promise.all(S.ops.map(async o => {
+    const out = plainOp(o);
+    if (o.k === 'im') out.data = await blobToData(o.blob);
+    return out;
+  }));
+  return new Blob([JSON.stringify({ app: FILE_APP, version: 1, name: S.name, pan: { ...pan }, zoom: S.zoom, ops: list })], { type: 'application/json' });
 }
+
+const baseName = f => f.replace(/\.json$/i, '');
 
 export async function doSave(saveAs) {
   commitEdit();
@@ -58,7 +62,7 @@ export async function doSave(saveAs) {
   const dl = window.claude?.use ? await window.claude.use('downloads') : null;
   if (dl) {
     try {
-      await dl.save({ filename: suggestedName(), data: await docBlob() });
+      await dl.save({ filename: fileName(), data: await docBlob() });
       toast('File consegnato al browser. Controlla i download.');
     } catch (err) {
       if (err?.code !== 'declined') toast('Il salvataggio non è riuscito qui. Usa la copia locale della lavagna.');
@@ -68,7 +72,11 @@ export async function doSave(saveAs) {
   // copia locale: si sceglie il file una volta, poi Ctrl+S lo sovrascrive
   if (window.showSaveFilePicker && !window.claude) {
     try {
-      if (!fileHandle || saveAs) fileHandle = await window.showSaveFilePicker({ suggestedName: suggestedName(), types: FILE_TYPES });
+      // se il nome è cambiato si sceglie di nuovo il file
+      if (!fileHandle || saveAs || fileHandle.name !== fileName()) {
+        fileHandle = await window.showSaveFilePicker({ suggestedName: fileName(), types: FILE_TYPES });
+        if (fileHandle.name !== fileName()) setName(baseName(fileHandle.name));
+      }
       const w = await fileHandle.createWritable();
       await w.write(await docBlob());
       await w.close();
@@ -82,7 +90,7 @@ export async function doSave(saveAs) {
   const url = URL.createObjectURL(await docBlob());
   const a = document.createElement('a');
   a.href = url;
-  a.download = suggestedName();
+  a.download = fileName();
   document.body.appendChild(a);
   a.click();
   a.remove();
@@ -106,10 +114,11 @@ export async function doOpen() {
 }
 
 async function loadFile(file) {
-  let list, savedPan;
+  let list, savedPan, name;
   try {
     const data = JSON.parse(await file.text());
     if (data.app !== FILE_APP || !Array.isArray(data.ops)) throw new Error('formato');
+    name = baseName(file.name) || data.name;
     savedPan = { x: +data.pan?.x || 0, y: +data.pan?.y || 0, z: +data.zoom || 1 };
     list = await Promise.all(data.ops.map(async o => {
       const op = { ...o, hidden: false };
@@ -129,8 +138,9 @@ async function loadFile(file) {
   }
   clearSel();
   const b = normalizeOps(list);
-  record({ t: 'load', a: S.ops, b, pa: { ...pan, z: S.zoom }, pb: savedPan });
+  record({ t: 'load', a: S.ops, b, pa: { ...pan, z: S.zoom }, pb: savedPan, na: S.name, nb: name });
   S.ops = b;
+  setName(name);
   setView(savedPan.x, savedPan.y, savedPan.z);
   afterChange();
   toast('Aperto ' + file.name + '. Annulla per tornare al foglio di prima.');
