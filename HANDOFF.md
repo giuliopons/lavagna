@@ -47,7 +47,7 @@ Pannello in alto a destra, dall'ingranaggio nel vassoio o dal tasto I; Esc lo ch
 - Nel nome del file `:` diventa `.` e `/ \ * ? " < > |` diventano `-`: Windows non li accetta.
 - Il nome è salvato nel file (campo `name`, `version` resta 1) e in IndexedDB. Apri prende il nome dal file aperto; Annulla lo ripristina.
 - Con la finestra di scelta, cambiare nome fa scegliere di nuovo il file al Salva successivo; un nome diverso scelto nella finestra diventa il nome del foglio.
-- Pulisci non cambia il nome.
+- Pulisci riporta il nome automatico e dimentica il file scelto con la finestra, così Ctrl+S non sovrascrive il file di prima. Annulla ripristina foglio e nome.
 - Con il pannello aperto le statistiche si aggiornano ogni secondo (circa 17 ms sul foglio reale), saltando i gesti in corso e aspettando `requestIdleCallback`.
 - Da verificare a mano: la finestra di scelta del file in Vivaldi.
 

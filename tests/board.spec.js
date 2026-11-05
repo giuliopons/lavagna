@@ -523,6 +523,14 @@ test('pannello del foglio: nome nel titolo e nel file, statistiche', async ({ pa
   await expect(page.locator('#statsTotN')).toHaveText('2', { timeout: 2500 });
   await page.keyboard.press('Escape');
   await expect(page.locator('#panel')).toBeHidden();
+
+  // Pulisci riporta il nome automatico, così non si sovrascrive il file di prima; Annulla lo ripristina
+  await page.click('#clear');
+  await expect(page).toHaveTitle(/^Disegno \d\d\/\d\d\/\d{4} \d\d:\d\d – Lavagna a mano libera$/);
+  const [fresh] = await Promise.all([page.waitForEvent('download'), page.click('#save')]);
+  expect(fresh.suggestedFilename()).toMatch(/^Disegno \d\d-\d\d-\d{4} \d\d\.\d\d\.json$/);
+  await page.keyboard.press('Control+z');
+  await expect(page).toHaveTitle('Riunione: piano – Lavagna a mano libera');
   noErrors(errors);
 });
 

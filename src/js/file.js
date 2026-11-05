@@ -24,6 +24,9 @@ const OPEN_TYPES = [{
 
 let fileHandle = null;
 
+// Dopo Pulisci il foglio è nuovo: Ctrl+S non deve sovrascrivere il file aperto prima
+export function forgetFile() { fileHandle = null; }
+
 const round2 = a => Array.from(a, v => Math.round(v * 100) / 100);
 
 const blobToData = b => new Promise((res, rej) => {

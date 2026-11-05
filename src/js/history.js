@@ -1,6 +1,7 @@
 // Annulla e ripeti.
 
 import { hint } from './dom.js';
+import { forgetFile } from './file.js';
 import { commitPlace } from './images.js';
 import { dropTiles, refresh, repaintAll } from './layers.js';
 import { clearSel } from './selection.js';
@@ -65,6 +66,7 @@ function apply(h, undoing) {
       break;
     case 'clear':
       S.ops = undoing ? h.ops : [];
+      setName(undoing ? h.name : '');
       repaintAll();
       break;
   }
@@ -95,8 +97,11 @@ export function clearBoard() {
   commitPlace();
   clearSel();
   if (!S.ops.length) return;
-  record({ t: 'clear', ops: S.ops });
+  record({ t: 'clear', ops: S.ops, name: S.name });
   S.ops = [];
+  // foglio nuovo: nome automatico e nessun file collegato, per non sovrascrivere quello di prima
+  setName('');
+  forgetFile();
   dropTiles();
   afterChange();
   toast('Foglio pulito. Annulla per riprenderlo.');
