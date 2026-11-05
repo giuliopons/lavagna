@@ -6,6 +6,7 @@ import { extname, join, normalize } from 'node:path';
 const TYPES = {
   '.html': 'text/html;charset=utf-8', '.js': 'text/javascript', '.css': 'text/css',
   '.webmanifest': 'application/manifest+json', '.png': 'image/png', '.woff2': 'font/woff2', '.txt': 'text/plain',
+  '.svg': 'image/svg+xml', '.ico': 'image/x-icon',
 };
 
 createServer((req, res) => {

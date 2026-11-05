@@ -9,8 +9,9 @@ const PWA_HEAD = [
   ['link', { rel: 'manifest', href: 'manifest.webmanifest' }],
   ['meta', { name: 'theme-color', content: '#20252c' }],
   ['meta', { name: 'description', content: 'Lavagna per scrivere a mano libera con la penna.' }],
-  ['link', { rel: 'icon', href: 'icons/icon-192.png' }],
-  ['link', { rel: 'apple-touch-icon', href: 'icons/icon-192.png' }],
+  ['link', { rel: 'icon', href: 'icons/favicon.ico', sizes: '48x48' }],
+  ['link', { rel: 'icon', href: 'icons/favicon.svg', type: 'image/svg+xml' }],
+  ['link', { rel: 'apple-touch-icon', href: 'icons/apple-touch-icon.png' }],
 ];
 
 export default defineConfig(({ mode }) => {
