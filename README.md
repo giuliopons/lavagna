@@ -26,9 +26,10 @@ Se hai esportato i tuoi lavori dalla lavagna di Microsoft in formato PDF puoi an
 - **Pannello delle impostazioni** con nome del file, bassa latenza, griglia di puntini e statistiche del foglio.
 - Funziona **senza internet**, anche aperta dal PC, e si può installare come app (PWA).
 
-# ISTRUZIONI
+<img width="1421" height="860" alt="{D4760024-4943-4711-A12C-68664CF80165}" src="https://github.com/user-attachments/assets/490471a8-c550-41e4-beaa-96f9a9d64386" />
 
-<img width="1242" height="61" alt="{04EAA16B-C34C-4A34-B4E6-71F153D35F5D}" src="https://github.com/user-attachments/assets/35c673d6-ca9d-42f3-ac24-1ec6f82839ed" />
+
+# ISTRUZIONI
 
 ### Avvio
 
@@ -65,6 +66,8 @@ Con lo strumento selezione (V) trascina un riquadro attorno agli oggetti oppure 
 - **Zoom:** con la rotella del mouse o con lo scorrimento della penna Wacom (zoom attorno al puntatore), con lo slider, oppure Ctrl++ e Ctrl+-. Ctrl+0 torna al 100%.
 
 ### File
+
+<img width="1421" height="857" alt="{D6308BC7-F83A-4196-939F-408209CA3D4B}" src="https://github.com/user-attachments/assets/393eec7e-586a-46fc-a5ec-862c6b6f4c5e" />
 
 - **Cartella dei disegni** (Chrome, Edge, Vivaldi): nel pannello delle impostazioni scegli una cartella del computer. Da quel momento Ctrl+S salva lì senza finestre, e Apri mostra **I miei disegni**: tutti i fogli con l'anteprima, dal più recente, con ricerca, rinomina, duplica e cestino (sottocartella `Eliminati`, da cui si può ripristinare). Se un altro disegno ha già lo stesso nome, la lavagna chiede prima di sovrascriverlo; se il foglio ha modifiche non salvate, chiede prima di aprirne un altro.
 - **Salvare:** Ctrl+S salva su file (o nella cartella dei disegni), Ctrl+Maiusc+S salva con un altro nome.
