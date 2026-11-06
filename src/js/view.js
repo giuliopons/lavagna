@@ -21,6 +21,16 @@ let dotStep = 0;
 
 let inverseZoom = 0;
 
+/* Passo dei puntini in coordinate del foglio: DOT, raddoppiato finché a schermo sono almeno 14 px.
+   I puntini stanno a metà di ogni passo: x = (k + 0,5) × passo */
+export function gridStep() {
+  let step = DOT * S.zoom;
+  while (step < 14) step *= 2;
+  return step / S.zoom;
+}
+
+export const snapGrid = v => { const g = gridStep(); return (Math.round(v / g - .5) + .5) * g; };
+
 export function applyPan() {
   const place3 = l => `translate3d(${pan.x}px,${pan.y}px,0) scale(${S.zoom / l.rz})`;
   S.L.el.style.transform = place3(S.L);
@@ -31,8 +41,7 @@ export function applyPan() {
     world.style.setProperty('--iz', inverseZoom);
     if (S.edit) styleGrip();
   }
-  let step = DOT * S.zoom;
-  while (step < 14) step *= 2;
+  const step = gridStep() * S.zoom;
   if (step !== dotStep) {
     dotStep = step;
     dots.style.backgroundSize = `${step}px ${step}px`;

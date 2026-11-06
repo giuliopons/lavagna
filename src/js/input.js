@@ -8,10 +8,10 @@ import { liveTransform, wipe, wipeInkNow, wipeInkSoon } from './live.js';
 import { clearSel, marqueeDrag, marqueeEnd, selDown, selDrag, selDragEnd } from './selection.js';
 import { S, pan, tools, touches } from './state.js';
 import { scheduleSave } from './storage.js';
-import { drawDot, drawSeg, drawTail, styleCtx } from './stroke.js';
+import { drawDot, drawSeg, drawStroke, drawTail, styleCtx } from './stroke.js';
 import { commitEdit, gripDrag, hoverText, textClick, textDrag, textRelease } from './text-editor.js';
 import { syncButtons } from './tray.js';
-import { setPan, wheelZoom } from './view.js';
+import { setPan, snapGrid, wheelZoom } from './view.js';
 
 const rawMove = 'onpointerrawupdate' in window;
 
@@ -79,10 +79,24 @@ function addPoint(e) {
   ]);
 }
 
+/* Righe sulla griglia: con Maiusc premuto e i puntini accesi il tratto diventa una riga dritta
+   dal puntino più vicino alla partenza a quello più vicino alla penna. Resta riga fino al sollevamento */
+function lineMove(g, e) {
+  if (!g.line) g.line = [snapGrid(g.p[0]), snapGrid(g.p[1])];
+  const [x, y] = toWorld(e), w = g.size;
+  const ax = g.line[0], ay = g.line[1], bx = snapGrid(x), by = snapGrid(y), r = w / 2 + 2;
+  g.p = [ax, ay, w, bx, by, w];
+  g.bb = [Math.min(ax, bx) - r, Math.min(ay, by) - r, Math.max(ax, bx) + r, Math.max(ay, by) + r];
+  if (g.k === 'pen') wipeInkNow();
+  else wipe(S.hlCtx, liveHl);
+  liveTransform(g.ctx);
+  drawStroke(g.ctx, { k: g.k, c: g.c, p: g.p });
+}
+
 function endStroke(e, keep) {
   const g = S.gest;
   S.gest = null;
-  if (keep && e) {
+  if (keep && e && !g.line) {
     const [x, y] = toWorld(e);
     const a = g.p, n = a.length;
     if (Math.hypot(x - a[n - 3], y - a[n - 2]) > .1) {
@@ -256,6 +270,8 @@ export function initInput() {
     if (S.gest.type === 'marquee') { marqueeDrag(e); return; }
     if (S.gest.id !== e.pointerId) return;
     moveRing(e);
+    const g = S.gest;
+    if (g.k !== 'er' && (g.line || (e.shiftKey && S.showDots))) { lineMove(g, e); return; }
     const list = e.getCoalescedEvents ? e.getCoalescedEvents() : null;
     if (list && list.length) for (const c of list) addPoint(c);
     else addPoint(e);

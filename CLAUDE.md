@@ -67,6 +67,7 @@ La versione nel pannello delle impostazioni viene da `version` in `package.json`
 - **Gomma:** è una maschera dentro `op.masks`, non un oggetto. I file vecchi con `k: 'er'` passano da `normalizeOps`.
 - **Forme importate (`k: 'sh'`):** contorni esatti dai PDF. `p` resta a terne, ma la terza cifra è un segno (1 inizio sottopercorso, 2 chiusura), non uno spessore. Si disegnano con `drawShape` (`stroke.js`); un file che ne contiene ha `version: 2`.
 - **Rotazione:** tratti, gomme e forme ruotano nei punti. Testi e immagini hanno il campo `r` (radianti), con perno nell'angolo in alto a sinistra `x, y`: il loro `bb` si calcola con `boxBB` (`stroke.js`) e il clic con `inBox` (`objects.js`). Un file con `r` ha `version: 2`.
+- **Righe sulla griglia:** con Maiusc e `S.showDots` il tratto di penna o evidenziatore diventa una riga tra due puntini (`lineMove` in `input.js`, `snapGrid` e `gridStep` in `view.js`). I puntini stanno a (k + 0,5) × `gridStep()`; il controllo sta nel gestore del movimento, non in `addPoint`.
 - **Fluidità del tratto:** nessun calcolo in più nel percorso di `addPoint`. Usa `getCoalescedEvents` e disegna solo il pezzo nuovo.
 - **Formato file e dati salvati:** i file `.json` già salvati devono continuare ad aprirsi. Non cambiare `app`, `lavagna-prefs` o il database IndexedDB `lavagna` senza una conversione.
 - **Lingua:** interfaccia, messaggi e commenti in italiano.

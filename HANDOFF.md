@@ -13,6 +13,7 @@ Il repository è su https://github.com/giuliopons/lavagna, con `dist` inclusa: d
 - **Scala:** un tratto molto ingrandito mostra piccoli rigonfiamenti alle giunture dei segmenti (disegno a pezzi con estremità tonde, su coordinate a metà pixel). Se con la penna vera si nota, il tratto a spessore costante va disegnato come un solo percorso.
 - **Ordine:** porta davanti e manda dietro spostano la selezione in cima o in fondo. Non c'è il passo singolo, un livello alla volta.
 - **Rotella:** la rotella e lo scorrimento della Wacom fanno di nuovo lo zoom attorno al puntatore, con il ridisegno nitido 350 ms dopo l'ultimo evento. Da provare con la Wacom vera: se è ancora lenta, alzare l'attesa in `wheelZoom` (`view.js`).
+- **Righe sulla griglia:** con Maiusc il tratto diventa una riga tra due puntini, spessore costante (quello dello strumento, senza pressione). Una volta diventato riga resta riga fino al sollevamento. Da provare con la penna vera: il tasto Maiusc va tenuto con l'altra mano.
 - **Pannello:** con il pannello aperto le statistiche si aggiornano ogni secondo (circa 17 ms sul foglio reale), saltando i gesti in corso.
 
 ## Misure sul foglio reale

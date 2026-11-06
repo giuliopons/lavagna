@@ -344,6 +344,46 @@ test('selezione: porta davanti e manda dietro, con pulsanti e PagSu/PagGiù', as
   noErrors(errors);
 });
 
+test('con Maiusc il tratto diventa una riga tra due puntini, solo con la griglia accesa', async ({ page }) => {
+  const errors = await openBoard(page);
+  // posizione dei puntini a schermo: pan + 14 + k × 28 a zoom 100%
+  const [px, py] = await page.evaluate(() => {
+    const m = /translate3d\(([-\d.]+)px,\s*([-\d.]+)px/.exec(document.getElementById('world').style.transform);
+    return [+m[1], +m[2]];
+  });
+  const dot = (v, p) => p + 14 + 28 * Math.round((v - p - 14) / 28);
+  const x0 = dot(300, px), x1 = x0 + 28 * 8, gy = dot(300, py);
+
+  // tratto storto da vicino a un puntino a vicino a un altro, con una pancia verso il basso
+  const wobbly = async () => {
+    await page.mouse.move(x0 + 6, gy + 7);
+    await page.mouse.down();
+    await page.mouse.move((x0 + x1) / 2, gy + 40, { steps: 8 });
+    await page.mouse.move(x1 - 5, gy - 6, { steps: 8 });
+    await page.mouse.up();
+    await page.waitForTimeout(80);
+  };
+  await page.keyboard.down('Shift');
+  await wobbly();
+  await page.keyboard.up('Shift');
+  // riga orizzontale sulla fila di puntini, dal primo all'ultimo puntino, senza la pancia
+  expect(await ink(page, x0 + 4, gy - 2, x1 - x0 - 8, 4)).toBeGreaterThan((x1 - x0 - 8) * 1.5);
+  expect(await ink(page, (x0 + x1) / 2 - 10, gy + 30, 20, 20)).toBe(0);
+  expect(await ink(page, x0 - 12, gy - 6, 8, 12)).toBe(0);
+  expect(await ink(page, x1 + 4, gy - 6, 8, 12)).toBe(0);
+
+  // con la griglia spenta Maiusc non cambia nulla: il tratto segue la mano
+  await page.keyboard.press('Control+z');
+  await page.keyboard.press('i');
+  await page.click('label[for=showDots]');
+  await page.keyboard.press('Escape');
+  await page.keyboard.down('Shift');
+  await wobbly();
+  await page.keyboard.up('Shift');
+  expect(await ink(page, (x0 + x1) / 2 - 10, gy + 30, 20, 20)).toBeGreaterThan(20);
+  noErrors(errors);
+});
+
 test('copia, incolla e taglia con la tastiera', async ({ page, context }) => {
   await context.grantPermissions(['clipboard-read', 'clipboard-write']);
   const errors = await openBoard(page);
