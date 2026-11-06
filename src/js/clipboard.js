@@ -51,12 +51,12 @@ export function pasteClip() {
 
 export function initClipboard() {
   window.addEventListener('copy', e => {
-    if (!S.sel || S.edit || S.cleanMode || e.target.closest?.('#panel')) return;
+    if (!S.sel || S.edit || S.cleanMode || S.gallery || S.modal || e.target.closest?.('#panel')) return;
     copySel(e);
     toast(S.sel.ops.length === 1 ? 'Oggetto copiato.' : S.sel.ops.length + ' oggetti copiati.', 1400);
   });
   window.addEventListener('cut', e => {
-    if (!S.sel || S.edit || S.cleanMode || e.target.closest?.('#panel')) return;
+    if (!S.sel || S.edit || S.cleanMode || S.gallery || S.modal || e.target.closest?.('#panel')) return;
     copySel(e);
     selDelete();
   });

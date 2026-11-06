@@ -32,6 +32,12 @@ S.showDots = prefs.dots !== false;  // griglia di puntini sullo sfondo
 
 S.ops = [];  // tutto ciò che è sul foglio, in ordine
 
+S.folder = null;      // cartella dei disegni: { handle, ok }, ok = permesso concesso
+S.folderFile = null;  // nome del file della cartella aperto sul foglio
+S.dirty = false;      // modifiche non ancora salvate nella cartella
+S.gallery = false;    // schermata "I miei disegni" aperta
+S.modal = false;      // finestra di domanda aperta
+
 S.undoStack = [];
 
 S.redoStack = [];

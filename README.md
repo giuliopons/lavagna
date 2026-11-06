@@ -21,6 +21,7 @@ Se hai esportato i tuoi lavori dalla lavagna di Microsoft in formato PDF puoi an
 - **Selezione** di uno o più oggetti, da spostare, ingrandire o rimpicciolire, ruotare, portare davanti o dietro, copiare, tagliare ed eliminare.
 - **Foglio infinito** con zoom, schermo intero e vista pulita per gli screenshot.
 - **Salvataggio automatico** nel browser e **salvataggio su file** `.json`, con il nome che scegli tu.
+- **I miei disegni:** colleghi una cartella del tuo computer e la lavagna salva lì e mostra tutti i fogli con l'anteprima, con rinomina, duplica e cestino. I file restano sul tuo PC, non su un server.
 - **Import dei PDF** esportati dalla lavagna Microsoft: tratti, testi e immagini tornano modificabili.
 - **Pannello delle impostazioni** con nome del file, bassa latenza, griglia di puntini e statistiche del foglio.
 - Funziona **senza internet**, anche aperta dal PC, e si può installare come app (PWA).
@@ -65,7 +66,8 @@ Con lo strumento selezione (V) trascina un riquadro attorno agli oggetti oppure 
 
 ### File
 
-- **Salvare:** Ctrl+S salva su file, Ctrl+Maiusc+S salva con un altro nome.
+- **Cartella dei disegni** (Chrome, Edge, Vivaldi): nel pannello delle impostazioni scegli una cartella del computer. Da quel momento Ctrl+S salva lì senza finestre, e Apri mostra **I miei disegni**: tutti i fogli con l'anteprima, dal più recente, con ricerca, rinomina, duplica e cestino (sottocartella `Eliminati`, da cui si può ripristinare). Se un altro disegno ha già lo stesso nome, la lavagna chiede prima di sovrascriverlo; se il foglio ha modifiche non salvate, chiede prima di aprirne un altro.
+- **Salvare:** Ctrl+S salva su file (o nella cartella dei disegni), Ctrl+Maiusc+S salva con un altro nome.
 - **Nome del file:** si cambia nel pannello delle impostazioni (tasto I o ingranaggio). Se lo lasci vuoto diventa "Disegno" con data e ora.
 - **Aprire:** Ctrl+O apre un foglio salvato. Apri accetta anche un PDF della lavagna Microsoft, che si aggiunge al foglio, e le immagini PNG o JPG.
 - **Pulire il foglio:** il cestino cancella tutto e riporta il nome automatico, così non sovrascrivi per sbaglio il file di prima. Ctrl+Z lo riporta indietro.

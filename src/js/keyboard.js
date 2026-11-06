@@ -16,6 +16,8 @@ export function initKeyboard() {
   /* Tastiera */
   window.addEventListener('keydown', e => {
     if (e.target.matches?.('textarea, input[type=text]')) return;
+    // con la galleria o una domanda aperta le scorciatoie del foglio tacciono
+    if (S.gallery || S.modal) return;
     // sull'interruttore la barra spaziatrice lo cambia, non sposta il foglio
     if (e.code === 'Space' && e.target.matches?.('input[type=checkbox]')) return;
     if (S.place && ['Escape', 'Delete', 'Backspace'].includes(e.key)) { e.preventDefault(); cancelPlace(); return; }

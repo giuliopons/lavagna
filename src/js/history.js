@@ -13,7 +13,8 @@ import { toast } from './toast.js';
 import { syncButtons } from './tray.js';
 import { setView } from './view.js';
 
-export function record(h) { S.undoStack.push(h); S.redoStack.length = 0; if (S.undoStack.length > 500) S.undoStack.shift(); }
+// ogni modifica annullabile passa da qui: il foglio ha modifiche non salvate nella cartella
+export function record(h) { S.dirty = true; S.undoStack.push(h); S.redoStack.length = 0; if (S.undoStack.length > 500) S.undoStack.shift(); }
 
 function apply(h, undoing) {
   switch (h.t) {
@@ -107,6 +108,6 @@ export function clearBoard() {
   toast('Foglio pulito. Annulla per riprenderlo.');
 }
 
-export function afterChange() { updateHint(); syncButtons(); scheduleSave(); updatePanelSoon(); }
+export function afterChange() { S.dirty = true; updateHint(); syncButtons(); scheduleSave(); updatePanelSoon(); }
 
 export function updateHint() { hint.hidden = S.ops.length > 0 || !!S.edit || !!S.gest || !!S.place; }

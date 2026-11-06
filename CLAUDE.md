@@ -49,7 +49,11 @@ La versione nel pannello delle impostazioni viene da `version` in `package.json`
 | `file.js` | Salva e Apri su file. Apri accetta anche PDF (importati) e immagini (da posizionare) |
 | `pdf-read.js` | Lettore PDF minimo: oggetti, flussi FlateDecode, pagine |
 | `pdf-import.js` | Import dei PDF della lavagna Microsoft: forme `sh`, testi, immagini |
-| `storage.js` | Salvataggio automatico in IndexedDB |
+| `storage.js` | Salvataggio automatico in IndexedDB; `idbGet`/`idbPut`/`idbDel` per le altre chiavi dello stesso archivio |
+| `folder.js` | Cartella dei disegni (File System Access): permessi, elenco, scrittura, rinomina, duplica, cestino `Eliminati`, anteprime dai primi KB |
+| `gallery.js` | Schermata "I miei disegni" e voce "Cartella dei disegni" nel pannello |
+| `preview.js` | Anteprima del foglio (360×225, WebP) per la galleria |
+| `dialog.js` | Finestra di domanda (`ask`) con pulsanti e campo di testo |
 | `tray.js` | Vassoio: strumenti, colori, spessore; interruttore della bassa latenza |
 | `view-modes.js` | Schermo intero e vista pulita |
 | `sheet-info.js` | Pannello delle impostazioni (ingranaggio o tasto I): nome del file, titolo della pagina, bassa latenza, griglia di puntini (`S.showDots`, in `lavagna-prefs`), statistiche |
@@ -69,6 +73,7 @@ La versione nel pannello delle impostazioni viene da `version` in `package.json`
 - **Rotazione:** tratti, gomme e forme ruotano nei punti. Testi e immagini hanno il campo `r` (radianti), con perno nell'angolo in alto a sinistra `x, y`: il loro `bb` si calcola con `boxBB` (`stroke.js`) e il clic con `inBox` (`objects.js`). Un file con `r` ha `version: 2`.
 - **Righe sulla griglia:** con Maiusc e `S.showDots` il tratto di penna o evidenziatore diventa una riga tra due puntini (`lineMove` in `input.js`, `snapGrid` e `gridStep` in `view.js`). I puntini stanno a (k + 0,5) × `gridStep()`; il controllo sta nel gestore del movimento, non in `addPoint`.
 - **Fluidità del tratto:** nessun calcolo in più nel percorso di `addPoint`. Usa `getCoalescedEvents` e disegna solo il pezzo nuovo.
+- **Cartella dei disegni:** il riferimento alla cartella sta in IndexedDB, archivio `doc`, chiave `folder`; le anteprime in cache sotto `pv:<nome>`. Il database resta alla versione 1. `docBlob` scrive il campo `preview` per primo, così la galleria legge solo l'inizio del file; è facoltativo e non cambia `version`. `S.folderFile` è il file della cartella aperto, `S.dirty` si accende in `record` e `afterChange` e si spegne al salvataggio nella cartella. Con la galleria (`S.gallery`) o una domanda (`S.modal`) aperte le scorciatoie del foglio tacciono.
 - **Formato file e dati salvati:** i file `.json` già salvati devono continuare ad aprirsi. Non cambiare `app`, `lavagna-prefs` o il database IndexedDB `lavagna` senza una conversione.
 - **Lingua:** interfaccia, messaggi e commenti in italiano.
 

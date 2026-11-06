@@ -1,12 +1,17 @@
 // Salva e Apri su file locale.
 
 import { $ } from './dom.js';
+import { ask } from './dialog.js';
+import { ensureFolder, fileExists, uniqueName, writeDrawing } from './folder.js';
+import { openGallery } from './gallery.js';
 import { afterChange, record } from './history.js';
 import { commitPlace, startPlace } from './images.js';
 import { normalizeOps } from './objects.js';
+import { makePreview } from './preview.js';
 import { importPdf } from './pdf-import.js';
 import { clearSel } from './selection.js';
 import { S, pan } from './state.js';
+import { scheduleSave } from './storage.js';
 import { fileName, setName } from './sheet-info.js';
 import { commitEdit } from './text-editor.js';
 import { textBB } from './text-render.js';
@@ -25,7 +30,7 @@ const OPEN_TYPES = [{
 let fileHandle = null;
 
 // Dopo Pulisci il foglio è nuovo: Ctrl+S non deve sovrascrivere il file aperto prima
-export function forgetFile() { fileHandle = null; }
+export function forgetFile() { fileHandle = null; S.folderFile = null; }
 
 const round2 = a => Array.from(a, v => Math.round(v * 100) / 100);
 
@@ -61,14 +66,56 @@ export async function docBlob() {
   }));
   // forme importate da PDF e testi o immagini ruotati (campo r) arrivano con la versione 2
   const version = S.ops.some(o => o.k === 'sh' || o.r) ? 2 : 1;
-  return new Blob([JSON.stringify({ app: FILE_APP, version, name: S.name, pan: { ...pan }, zoom: S.zoom, ops: list })], { type: 'application/json' });
+  // l'anteprima va per prima: la galleria legge solo l'inizio del file. Le versioni vecchie la ignorano
+  const preview = makePreview();
+  const doc = { ...(preview ? { preview } : {}), app: FILE_APP, version, name: S.name, pan: { ...pan }, zoom: S.zoom, ops: list };
+  return new Blob([JSON.stringify(doc)], { type: 'application/json' });
 }
 
-const baseName = f => f.replace(/\.json$/i, '');
+export const baseName = f => f.replace(/\.json$/i, '');
+
+/* Salvataggio nella cartella dei disegni, senza finestre. Restituisce 'saved', 'cancel' oppure
+   'unavailable' (nessuna cartella o permesso negato: si salva come senza cartella) */
+export async function saveToFolder() {
+  if (!S.folder) return 'unavailable';
+  if (!await ensureFolder()) {
+    toast('Il browser non dà il permesso di scrivere nella cartella dei disegni. Ricollegala dal pannello delle impostazioni.', 5000);
+    return 'unavailable';
+  }
+  try {
+    let name = fileName();
+    // un altro disegno con lo stesso nome: si chiede prima di sovrascriverlo
+    if (name !== S.folderFile && await fileExists(name)) {
+      const alt = await uniqueName(name);
+      const r = await ask({
+        title: 'Esiste già un disegno con questo nome',
+        text: `Nella cartella c'è già "${baseName(name)}".`,
+        buttons: [
+          { id: 'cancel', label: 'Annulla' },
+          { id: 'over', label: 'Sovrascrivi' },
+          { id: 'alt', label: `Salva come "${baseName(alt)}"`, primary: true },
+        ],
+      });
+      if (r !== 'over' && r !== 'alt') return 'cancel';
+      if (r === 'alt') { name = alt; setName(baseName(alt)); }
+    }
+    await writeDrawing(name, await docBlob());
+    S.folderFile = name;
+    S.dirty = false;
+    scheduleSave();
+    toast(`Salvato in ${S.folder.handle.name}: ${name}`);
+    return 'saved';
+  } catch {
+    toast('Non sono riuscito a scrivere nella cartella dei disegni.', 5000);
+    return 'cancel';
+  }
+}
 
 export async function doSave(saveAs) {
   commitEdit();
   commitPlace();
+  // con la cartella dei disegni Ctrl+S scrive lì; Ctrl+Maiusc+S resta "salva con nome"
+  if (!saveAs && await saveToFolder() !== 'unavailable') return;
   // si sceglie il file una volta, poi Ctrl+S lo sovrascrive
   if (window.showSaveFilePicker) {
     try {
@@ -98,9 +145,16 @@ export async function doSave(saveAs) {
   toast('Download avviato: ' + a.download);
 }
 
+// Apri: con la cartella dei disegni collegata mostra la galleria, altrimenti si sceglie un file
 export async function doOpen() {
   commitEdit();
   commitPlace();
+  if (S.folder) { openGallery(); return; }
+  await openOther();
+}
+
+// Un file qualsiasi: lavagna salvata, PDF o immagine
+export async function openOther() {
   if (window.showOpenFilePicker) {
     try {
       const [h] = await window.showOpenFilePicker({ types: OPEN_TYPES });
@@ -126,7 +180,8 @@ async function openAny(file) {
   return await loadFile(file) ? 'json' : null;
 }
 
-async function loadFile(file) {
+// fromFolder: il file viene dalla cartella dei disegni, quindi Ctrl+S lo riscrive lì
+export async function loadFile(file, fromFolder = false) {
   let list, savedPan, name;
   try {
     const data = JSON.parse(await file.text());
@@ -156,7 +211,9 @@ async function loadFile(file) {
   setName(name);
   setView(savedPan.x, savedPan.y, savedPan.z);
   afterChange();
-  toast('Aperto ' + file.name + '. Annulla per tornare al foglio di prima.');
+  S.folderFile = fromFolder ? file.name : null;
+  S.dirty = !fromFolder;
+  toast('Aperto ' + baseName(file.name) + '. Annulla per tornare al foglio di prima.');
   return true;
 }
 

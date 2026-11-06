@@ -35,10 +35,12 @@ export function setName(n) {
 }
 
 // Il nome come file: Windows non accetta / e : nei nomi
-export function fileName() {
-  const base = S.name.replace(/:/g, '.').replace(/[\\/*?"<>|]+/g, '-').replace(/[. ]+$/, '');
+export function fileNameOf(n) {
+  const base = String(n).replace(/:/g, '.').replace(/[\\/*?"<>|]+/g, '-').replace(/[. ]+$/, '');
   return (base || 'Disegno') + '.json';
 }
+
+export const fileName = () => fileNameOf(S.name);
 
 export const isPanelOpen = () => !$('panel').hidden;
 
@@ -153,7 +155,7 @@ export function initSheetInfo() {
     document.title = v + ' – ' + APP_TITLE;
     scheduleSave();
   });
-  inp.addEventListener('change', () => { setName(inp.value); scheduleSave(); });
+  inp.addEventListener('change', () => { setName(inp.value); S.dirty = true; scheduleSave(); });
   inp.addEventListener('keydown', e => {
     if (e.key === 'Enter' || e.key === 'Escape') { e.preventDefault(); inp.blur(); }
   });

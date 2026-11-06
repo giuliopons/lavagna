@@ -20,6 +20,37 @@ function db() {
   return dbP;
 }
 
+/* Altre chiavi nello stesso archivio 'doc': la cartella dei disegni e la cache delle anteprime.
+   Il database resta alla versione 1 */
+export async function idbGet(key) {
+  const d = await db();
+  return new Promise((res, rej) => {
+    const r = d.transaction('doc').objectStore('doc').get(key);
+    r.onsuccess = () => res(r.result);
+    r.onerror = () => rej(r.error);
+  });
+}
+
+export async function idbPut(key, value) {
+  const d = await db();
+  return new Promise((res, rej) => {
+    const tx = d.transaction('doc', 'readwrite');
+    tx.objectStore('doc').put(value, key);
+    tx.oncomplete = () => res();
+    tx.onerror = () => rej(tx.error);
+  });
+}
+
+export async function idbDel(key) {
+  const d = await db();
+  return new Promise((res, rej) => {
+    const tx = d.transaction('doc', 'readwrite');
+    tx.objectStore('doc').delete(key);
+    tx.oncomplete = () => res();
+    tx.onerror = () => rej(tx.error);
+  });
+}
+
 export function scheduleSave() {
   clearTimeout(S.saveTimer);
   S.saveTimer = setTimeout(save, 1200);
@@ -29,19 +60,18 @@ export async function save() {
   if (S.gest) { scheduleSave(); return; }
   try {
     const d = await db();
-    d.transaction('doc', 'readwrite').objectStore('doc').put({ ops: S.ops.map(({ bmp, ...o }) => o), pan: { ...pan }, zoom: S.zoom, name: S.name }, 'main');
+    d.transaction('doc', 'readwrite').objectStore('doc').put({
+      ops: S.ops.map(({ bmp, ...o }) => o), pan: { ...pan }, zoom: S.zoom, name: S.name,
+      folderFile: S.folderFile, dirty: S.dirty,
+    }, 'main');
   } catch {}
 }
 
 export async function restore() {
   try {
-    const d = await db();
-    const data = await new Promise((res, rej) => {
-      const r = d.transaction('doc').objectStore('doc').get('main');
-      r.onsuccess = () => res(r.result);
-      r.onerror = () => rej(r.error);
-    });
+    const data = await idbGet('main');
     if (data?.name && !S.ops.length) setName(data.name);
+    if (data && !S.ops.length) { S.folderFile = data.folderFile || null; S.dirty = !!data.dirty; }
     if (!data || !data.ops || S.ops.length) return;
     const loaded = data.ops.map(o => ({ ...o, hidden: false }));
     await Promise.all(loaded.map(async o => {

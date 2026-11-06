@@ -3,6 +3,8 @@
 import { initClipboard } from './clipboard.js';
 import { initDebug } from './debug.js';
 import { docBlob, initFile } from './file.js';
+import { restoreFolder } from './folder.js';
+import { initGallery, syncFolderUI } from './gallery.js';
 import { initImages } from './images.js';
 import { initInput } from './input.js';
 import { initKeyboard } from './keyboard.js';
@@ -44,6 +46,7 @@ initTray();
 initViewModes();
 initKeyboard();
 initSheetInfo();
+initGallery();
 
 window.addEventListener('resize', onResize);
 
@@ -68,6 +71,8 @@ setName('');
 if (!document.fullscreenEnabled) fullBtn.hidden = true;
 
 restore();
+
+restoreFolder().then(syncFolderUI);
 
 // quando il font arriva, i testi riprendono misure e forma giuste
 document.fonts?.ready.then(() => {

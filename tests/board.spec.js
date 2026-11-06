@@ -384,6 +384,127 @@ test('con Maiusc il tratto diventa una riga tra due puntini, solo con la griglia
   noErrors(errors);
 });
 
+test('cartella dei disegni: salva, galleria, conflitti, rinomina, duplica, cestino', async ({ page }) => {
+  // la finestra di scelta della cartella diventa una cartella nell'archivio privato del browser, con la stessa API
+  await page.addInitScript(() => {
+    window.showDirectoryPicker = async () => (await navigator.storage.getDirectory()).getDirectoryHandle('Disegni', { create: true });
+  });
+  const errors = await openBoard(page);
+  const files = (sub = '') => page.evaluate(async s => {
+    let d = await (await navigator.storage.getDirectory()).getDirectoryHandle('Disegni');
+    if (s) { try { d = await d.getDirectoryHandle(s); } catch { return []; } }
+    const out = [];
+    for await (const [n, h] of d.entries()) if (h.kind === 'file') out.push(n);
+    return out.sort();
+  }, sub);
+  const head = name => page.evaluate(async n => {
+    const d = await (await navigator.storage.getDirectory()).getDirectoryHandle('Disegni');
+    return (await (await d.getFileHandle(n)).getFile()).slice(0, 40).text();
+  }, name);
+  const names = () => page.locator('#gallery .gal-card:not(.gal-new) .gal-name').allTextContents();
+  const cardAct = async (name, act) => {
+    const c = page.locator('#gallery .gal-card', { has: page.locator('.gal-name', { hasText: new RegExp(`^${name.replace(/[()]/g, '\\$&')}$`) }) });
+    await c.hover();
+    await c.locator(`[data-act="${act}"]`).last().click();
+  };
+  const setSheetName = async n => {
+    await page.keyboard.press('i');
+    await page.fill('#sheetName', n);
+    await page.keyboard.press('Enter');
+    await page.keyboard.press('Escape');
+  };
+
+  // collegare la cartella dal pannello
+  await page.keyboard.press('i');
+  await expect(page.locator('#folderOpt')).toBeVisible();
+  await page.click('#folderPick');
+  await expect(page.locator('#folderNote')).toContainText('Disegni');
+  await page.keyboard.press('Escape');
+
+  // Ctrl+S salva nella cartella senza finestre, con l'anteprima in testa al file
+  await line(page, 200, 200, 500, 200);
+  await setSheetName('Primo');
+  await page.keyboard.press('Control+s');
+  await expect.poll(files).toEqual(['Primo.json']);
+  expect(await head('Primo.json')).toMatch(/^\{"preview":"data:image\/(webp|png);base64,/);
+  // lo stesso foglio si riscrive senza domande
+  await line(page, 200, 260, 500, 260);
+  await page.keyboard.press('Control+s');
+  await page.waitForTimeout(200);
+  await expect(page.locator('.ask')).toHaveCount(0);
+
+  // un foglio nuovo con lo stesso nome: si chiede prima di sovrascrivere
+  await page.click('#clear');
+  await line(page, 200, 320, 500, 320);
+  await setSheetName('Primo');
+  await page.keyboard.press('Control+s');
+  await expect(page.locator('.ask')).toBeVisible();
+  await page.click('.ask button:has-text("Salva come")');
+  await expect.poll(files).toEqual(['Primo (2).json', 'Primo.json']);
+  await expect(page).toHaveTitle('Primo (2) – Lavagna a mano libera');
+
+  // Apri mostra la galleria: il più recente per primo, il foglio aperto evidenziato, le anteprime
+  await page.keyboard.press('Control+o');
+  await expect(page.locator('#gallery')).toBeVisible();
+  await expect.poll(names).toEqual(['Primo (2)', 'Primo']);
+  await expect(page.locator('#gallery .gal-card.current .gal-name')).toHaveText('Primo (2)');
+  await expect(page.locator('#gallery .gal-thumb img')).toHaveCount(2);
+  await page.fill('#galSearch', '(2)');
+  await expect.poll(names).toEqual(['Primo (2)']);
+  await page.fill('#galSearch', '');
+
+  // aprire un disegno: il foglio era salvato, quindi nessuna domanda
+  await page.locator('#gallery .gal-card:not(.current):not(.gal-new) .gal-open').click();
+  await expect(page.locator('#gallery')).toBeHidden();
+  await expect(page).toHaveTitle('Primo – Lavagna a mano libera');
+  expect(await ink(page, 200, 255, 300, 10)).toBeGreaterThan(200);
+
+  // con modifiche non salvate si chiede cosa fare
+  await line(page, 200, 400, 500, 400);
+  await page.keyboard.press('Control+o');
+  await page.locator('#gallery .gal-card:not(.current):not(.gal-new) .gal-open').click();
+  await expect(page.locator('.ask')).toContainText('modifiche non salvate');
+  await page.click('.ask button:has-text("Non salvare")');
+  await expect(page).toHaveTitle('Primo (2) – Lavagna a mano libera');
+
+  // rinomina, duplica, cestino
+  await page.keyboard.press('Control+o');
+  await cardAct('Primo', 'rename');
+  await page.fill('.ask input', 'Lezione');
+  await page.click('.ask button:has-text("Rinomina")');
+  await expect.poll(names).toEqual(['Primo (2)', 'Lezione']);
+  await cardAct('Lezione', 'duplicate');
+  await expect.poll(files).toEqual(['Lezione (copia).json', 'Lezione.json', 'Primo (2).json']);
+  await cardAct('Lezione (copia)', 'trash');
+  await expect.poll(files).toEqual(['Lezione.json', 'Primo (2).json']);
+  expect(await files('Eliminati')).toEqual(['Lezione (copia).json']);
+
+  // nel cestino: ripristina, poi elimina per sempre
+  await page.click('#galTrash');
+  await expect(page.locator('#galTitle')).toHaveText('Cestino');
+  await cardAct('Lezione (copia)', 'restore');
+  await expect.poll(files).toEqual(['Lezione (copia).json', 'Lezione.json', 'Primo (2).json']);
+  await page.click('#galTrash');
+  await cardAct('Lezione (copia)', 'trash');
+  await page.click('#galTrash');
+  await cardAct('Lezione (copia)', 'trash');
+  await page.click('.ask button:has-text("Elimina per sempre")');
+  await expect.poll(() => files('Eliminati')).toEqual([]);
+  await page.keyboard.press('Escape');
+  await expect(page.locator('#gallery')).toBeHidden();
+  // chiusa la galleria, le scorciatoie tornano a funzionare (il focus non resta nella ricerca)
+  await page.keyboard.press('e');
+  await expect(page.locator('#t-hl')).toHaveAttribute('aria-pressed', 'true');
+
+  // dopo un ricaricamento la cartella è ancora collegata
+  await page.waitForTimeout(1500);
+  await page.reload();
+  await page.waitForTimeout(400);
+  await page.keyboard.press('Control+o');
+  await expect.poll(names).toEqual(['Primo (2)', 'Lezione']);
+  noErrors(errors);
+});
+
 test('copia, incolla e taglia con la tastiera', async ({ page, context }) => {
   await context.grantPermissions(['clipboard-read', 'clipboard-write']);
   const errors = await openBoard(page);

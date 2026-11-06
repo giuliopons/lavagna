@@ -14,6 +14,7 @@ Il repository è su https://github.com/giuliopons/lavagna, con `dist` inclusa: d
 - **Ordine:** porta davanti e manda dietro spostano la selezione in cima o in fondo. Non c'è il passo singolo, un livello alla volta.
 - **Rotella:** la rotella e lo scorrimento della Wacom fanno di nuovo lo zoom attorno al puntatore, con il ridisegno nitido 350 ms dopo l'ultimo evento. Da provare con la Wacom vera: se è ancora lenta, alzare l'attesa in `wheelZoom` (`view.js`).
 - **Righe sulla griglia:** con Maiusc il tratto diventa una riga tra due puntini, spessore costante (quello dello strumento, senza pressione). Una volta diventato riga resta riga fino al sollevamento. Da provare con la penna vera: il tasto Maiusc va tenuto con l'altra mano.
+- **Cartella dei disegni:** fatta come da piano (6 novembre 2026). Apri mostra la galleria quando la cartella è collegata, Elimina sposta in `Eliminati`, si salva solo con Ctrl+S, niente sottocartelle. Il salvataggio su file del foglio reale passa da circa 66 a 173 ms per l'anteprima. Nei test la cartella è simulata con l'archivio privato del browser (OPFS), che su `file://` non è disponibile: le prove automatiche vanno fatte su `localhost`.
 - **Pannello:** con il pannello aperto le statistiche si aggiornano ogni secondo (circa 17 ms sul foglio reale), saltando i gesti in corso.
 
 ## Misure sul foglio reale
@@ -73,6 +74,7 @@ I test usano il mouse simulato in Chromium. Da provare a mano:
 - I cursori di rotazione sullo schermo vero: negli screenshot automatici il cursore non compare.
 - Installazione reale della PWA da HTTPS, l'icona nuova dopo l'aggiornamento e la favicon da disco.
 - PDF di programmi diversi dalla lavagna Microsoft.
+- Cartella dei disegni vera in Chrome e Vivaldi: richiesta di permesso, "Consenti a ogni visita", ritorno dopo la chiusura del browser, lavagna aperta dal disco e PWA installata (permessi separati), cartella sincronizzata con OneDrive o Dropbox, galleria con molti fogli pesanti.
 - Touch: rotazione e scala con il dito; il pizzico con due dita non fa zoom, le due dita spostano il foglio.
 
 ## Decisioni aperte
