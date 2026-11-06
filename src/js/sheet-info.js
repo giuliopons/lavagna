@@ -1,8 +1,8 @@
 // Pannello del foglio: nome del file e statistiche sul contenuto.
 
-import { $, board } from './dom.js';
+import { $, board, dots } from './dom.js';
 import { plainOp } from './file.js';
-import { S } from './state.js';
+import { S, savePrefs } from './state.js';
 import { scheduleSave } from './storage.js';
 
 const APP_TITLE = 'Lavagna a mano libera';
@@ -136,6 +136,15 @@ export function updatePanel() {
 export function initSheetInfo() {
   // versione da package.json, messa dalla build
   $('appVersion').textContent = 'v.' + __VERSION__;
+  // griglia di puntini: si accende e si spegne dal pannello, la scelta resta nelle preferenze
+  const dotsSw = $('showDots');
+  dotsSw.checked = S.showDots;
+  dots.hidden = !S.showDots;
+  dotsSw.addEventListener('change', () => {
+    S.showDots = dotsSw.checked;
+    dots.hidden = !S.showDots;
+    savePrefs();
+  });
   const inp = $('sheetName');
   inp.addEventListener('input', () => {
     const v = inp.value.trim();

@@ -564,10 +564,20 @@ test('impostazioni: la bassa latenza si cambia dal pannello e resta salvata', as
   await expect(page.locator('#board')).not.toHaveClass(/hand/);
   await page.keyboard.press('Space');
   await expect(sw).not.toBeChecked();
+  // la griglia di puntini si spegne dal pannello
+  const dotsSw = page.locator('#showDots');
+  await expect(dotsSw).toBeChecked();
+  await expect(page.locator('#dots')).toBeVisible();
+  await page.click('label[for=showDots]');
+  await expect(page.locator('#dots')).toBeHidden();
   await page.reload();
   await page.waitForTimeout(300);
+  await expect(page.locator('#dots')).toBeHidden();
   await page.keyboard.press('i');
   await expect(page.locator('#lowLat')).not.toBeChecked();
+  await expect(page.locator('#showDots')).not.toBeChecked();
+  await page.click('label[for=showDots]');
+  await expect(page.locator('#dots')).toBeVisible();
   // si disegna ancora
   await page.keyboard.press('Escape');
   await line(page, 200, 300, 500, 300);

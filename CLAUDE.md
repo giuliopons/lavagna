@@ -52,7 +52,7 @@ La versione nel pannello delle impostazioni viene da `version` in `package.json`
 | `storage.js` | Salvataggio automatico in IndexedDB |
 | `tray.js` | Vassoio: strumenti, colori, spessore; interruttore della bassa latenza |
 | `view-modes.js` | Schermo intero e vista pulita |
-| `sheet-info.js` | Pannello delle impostazioni (ingranaggio o tasto I): nome del file, titolo della pagina, bassa latenza, statistiche |
+| `sheet-info.js` | Pannello delle impostazioni (ingranaggio o tasto I): nome del file, titolo della pagina, bassa latenza, griglia di puntini (`S.showDots`, in `lavagna-prefs`), statistiche |
 | `keyboard.js` | Scorciatoie |
 | `toast.js` | Messaggi brevi |
 | `debug.js` | Registro eventi sul tasto D, solo con `npm run dev` |

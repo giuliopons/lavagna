@@ -28,6 +28,8 @@ S.tool = tools[prefs.tool] ? prefs.tool : 'pen';
 
 S.lowLatency = prefs.lowLatency !== false;
 
+S.showDots = prefs.dots !== false;  // griglia di puntini sullo sfondo
+
 S.ops = [];  // tutto ciò che è sul foglio, in ordine
 
 S.undoStack = [];
@@ -62,7 +64,7 @@ function load(k) { try { return JSON.parse(localStorage.getItem(k)); } catch { r
 
 export function savePrefs() {
   try {
-    const o = { tool: S.tool, lowLatency: S.lowLatency };
+    const o = { tool: S.tool, lowLatency: S.lowLatency, dots: S.showDots };
     for (const k in tools) o[k] = { c: tools[k].c, s: tools[k].s };
     localStorage.setItem('lavagna-prefs', JSON.stringify(o));
   } catch {}

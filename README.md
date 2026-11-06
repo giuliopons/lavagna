@@ -21,7 +21,7 @@ Se hai esportato i tuoi lavori dalla lavagna di Microsoft in formato PDF puoi an
 - **Foglio infinito** con zoom, schermo intero e vista pulita per gli screenshot.
 - **Salvataggio automatico** nel browser e **salvataggio su file** `.json`, con il nome che scegli tu.
 - **Import dei PDF** esportati dalla lavagna Microsoft: tratti, testi e immagini tornano modificabili.
-- **Pannello delle impostazioni** con nome del file, bassa latenza e statistiche del foglio.
+- **Pannello delle impostazioni** con nome del file, bassa latenza, griglia di puntini e statistiche del foglio.
 - Funziona **senza internet**, anche aperta dal PC, e si può installare come app (PWA).
 
 # ISTRUZIONI
@@ -74,6 +74,7 @@ Il pannello si apre con l'ingranaggio nel vassoio o con il tasto I, e si chiude 
 
 - il nome del file;
 - l'interruttore della **bassa latenza**: il tratto segue la penna più da vicino; spegnila se vedi sfarfallii;
+- l'interruttore della **griglia di puntini** sullo sfondo, che è solo a schermo e non finisce nei file;
 - le statistiche del foglio: oggetti, peso, punti, area usata, tempo di ridisegno.
 
 ### Altre scorciatoie
