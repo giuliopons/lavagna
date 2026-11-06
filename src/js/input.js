@@ -11,7 +11,7 @@ import { scheduleSave } from './storage.js';
 import { drawDot, drawSeg, drawTail, styleCtx } from './stroke.js';
 import { commitEdit, gripDrag, hoverText, textClick, textDrag, textRelease } from './text-editor.js';
 import { syncButtons } from './tray.js';
-import { setPan } from './view.js';
+import { setPan, wheelZoom } from './view.js';
 
 const rawMove = 'onpointerrawupdate' in window;
 
@@ -263,8 +263,10 @@ export function initInput() {
   board.addEventListener('pointerup', e => pointerEnd(e, false));
   board.addEventListener('pointercancel', e => pointerEnd(e, true));
   board.addEventListener('pointerleave', () => { if (!S.gest) ring.hidden = true; });
-  // La rotella e lo scorrimento della penna non fanno nulla: lo zoom si regola con lo slider
+  // La rotella e lo scorrimento della penna fanno lo zoom attorno al puntatore, non durante un gesto
   board.addEventListener('wheel', e => {
     e.preventDefault();
+    if (S.gest) return;
+    wheelZoom(e);
   }, { passive: false });
 }

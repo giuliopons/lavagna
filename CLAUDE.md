@@ -75,7 +75,7 @@ La versione nel pannello delle impostazioni viene da `version` in `package.json`
 
 - Il multiply funziona solo su carta bianca: la lavagna ha un solo aspetto, chiaro.
 - I gesti del mouse di Vivaldi intercettano il tasto destro. La pagina non può impedirlo: si risolve nelle impostazioni del browser o con la barra spaziatrice.
-- La rotella non deve fare nulla: lo zoom con lo scorrimento della Wacom era lento ed è stato tolto su richiesta. Lo zoom passa da slider e Ctrl++ / Ctrl+-.
+- La rotella e lo scorrimento della penna Wacom (funzione "panoramica/scorrimento", che manda eventi `wheel`) fanno lo zoom attorno al puntatore (`wheelZoom` in `view.js`). Era stata tolta perché lenta: gli eventi arrivano a raffiche e ogni pausa faceva ripartire il ridisegno nitido. Ora il ridisegno parte 350 ms dopo l'ultimo evento e costa meno (foglio d'appoggio ridotto). Se torna lenta, alzare quell'attesa prima di toglierla.
 
 ## Prima di dire che una cosa funziona
 

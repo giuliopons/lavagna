@@ -58,7 +58,7 @@ Con lo strumento selezione (V) trascina un riquadro attorno agli oggetti oppure 
 ### Muoversi sul foglio
 
 - **Spostare il foglio:** trascina con il tasto destro, con il tasto centrale, con il tasto laterale della penna o tenendo premuta la barra spaziatrice. Su touch, trascina con due dita.
-- **Zoom:** con lo slider, oppure Ctrl++ e Ctrl+-. Ctrl+0 torna al 100%. La rotella del mouse non fa nulla, di proposito.
+- **Zoom:** con la rotella del mouse o con lo scorrimento della penna Wacom (zoom attorno al puntatore), con lo slider, oppure Ctrl++ e Ctrl+-. Ctrl+0 torna al 100%.
 
 ### File
 

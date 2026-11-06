@@ -41,15 +41,27 @@ test('il tasto destro sposta il foglio e mostra la mano', async ({ page }) => {
   noErrors(errors);
 });
 
-test('la rotella non fa nulla, lo slider fa lo zoom', async ({ page }) => {
+test('la rotella fa lo zoom attorno al puntatore, anche lo slider', async ({ page }) => {
   const errors = await openBoard(page);
   await line(page, 600, 380, 680, 380);
-  const before = await page.evaluate(() => document.getElementById('world').style.transform);
+  // rotella in su: ingrandisce, e il tratto sotto il puntatore resta lì
   await page.mouse.move(640, 380);
-  await page.mouse.wheel(0, -500);
+  for (let i = 0; i < 5; i++) await page.mouse.wheel(0, -100);
+  await page.waitForTimeout(100);
+  const zin = parseInt(await page.locator('#zoomVal').textContent(), 10);
+  expect(zin).toBeGreaterThan(150);
+  expect(await ink(page, 630, 374, 20, 12)).toBeGreaterThan(30);
+  expect(await ink(page, 560, 374, 20, 12)).toBeGreaterThan(30);    // il tratto si è allungato verso sinistra
+  // a raffica finita i tasselli vengono ridisegnati alla nuova scala
+  await page.waitForTimeout(700);
+  expect(await page.evaluate(() => document.querySelector('.layer:last-child').style.transform)).toContain('scale(1)');
+  // rotella in giù: rimpicciolisce
+  for (let i = 0; i < 5; i++) await page.mouse.wheel(0, 100);
+  await page.waitForTimeout(100);
+  expect(parseInt(await page.locator('#zoomVal').textContent(), 10)).toBeLessThan(zin);
+  await page.click('#zoomVal');
   await page.waitForTimeout(300);
   await expect(page.locator('#zoomVal')).toHaveText('100%');
-  expect(await page.evaluate(() => document.getElementById('world').style.transform)).toBe(before);
 
   await setZoomSlider(page, 1);
   await expect(page.locator('#zoomVal')).toHaveText('200%');

@@ -53,7 +53,8 @@ function syncZoomUI() {
   zoomVal.textContent = Math.round(S.zoom * 100) + '%';
 }
 
-export function setZoom(z, cx, cy) {
+// settle: quanto aspettare, a zoom fermo, prima di ridisegnare nitido
+export function setZoom(z, cx, cy, settle = 160) {
   z = Math.min(4, Math.max(.25, z));
   if (z === S.zoom) return;
   const k = z / S.zoom;
@@ -62,8 +63,17 @@ export function setZoom(z, cx, cy) {
   syncZoomUI();
   if (ring && !ring.hidden) styleRing();
   clearTimeout(settleTimer);
-  settleTimer = setTimeout(settleZoom, 160);
+  settleTimer = setTimeout(settleZoom, settle);
   scheduleSave();
+}
+
+/* Rotella del mouse e scorrimento della penna Wacom: zoom attorno al puntatore.
+   Gli eventi arrivano a raffiche: il ridisegno nitido parte solo a raffica finita */
+export function wheelZoom(e) {
+  const unit = e.deltaMode === 1 ? 16 : e.deltaMode === 2 ? S.vh : 1;
+  const dy = Math.max(-200, Math.min(200, e.deltaY * unit));
+  if (!dy) return;
+  setZoom(S.zoom * Math.exp(-dy * .0015), e.clientX, e.clientY, 350);
 }
 
 export function settleZoom() {
