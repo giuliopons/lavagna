@@ -77,21 +77,30 @@ export function paint(t, op) {
   const ctx = t.ctx;
   const masks = op.masks?.filter(m => hits(t.bb, m.bb));
   if (op.k !== 'hl' && !masks?.length) { drawRaw(ctx, op, t.bb); return; }
-  // su un foglio d'appoggio: l'evidenziatore non si scurisce da solo, e la gomma tocca solo questo oggetto
-  const c = t.tmp || tmp, x = c.getContext('2d');
+  // su un foglio d'appoggio: l'evidenziatore non si scurisce da solo, e la gomma tocca solo questo oggetto.
+  // Si usa solo il rettangolo dell'oggetto dentro il tassello, in pixel interi presi per eccesso
+  const c = t.tmp || tmp, x = c.getContext('2d'), s = t.scale;
+  const px0 = Math.max(0, Math.floor((Math.max(op.bb[0], t.bb[0]) - t.bb[0]) * s));
+  const py0 = Math.max(0, Math.floor((Math.max(op.bb[1], t.bb[1]) - t.bb[1]) * s));
+  const px1 = Math.min(c.width, Math.ceil((Math.min(op.bb[2], t.bb[2]) - t.bb[0]) * s));
+  const py1 = Math.min(c.height, Math.ceil((Math.min(op.bb[3], t.bb[3]) - t.bb[1]) * s));
+  const w = px1 - px0, h = py1 - py0;
+  if (w <= 0 || h <= 0) return;
+  // la stessa zona in coordinate del foglio, per scartare i pezzi di tratto e le gomme che non la toccano
+  const area = [t.bb[0] + px0 / s, t.bb[1] + py0 / s, t.bb[0] + px1 / s, t.bb[1] + py1 / s];
   x.setTransform(1, 0, 0, 1, 0, 0);
-  x.clearRect(0, 0, c.width, c.height);
-  x.setTransform(t.scale, 0, 0, t.scale, -t.bb[0] * t.scale, -t.bb[1] * t.scale);
-  drawRaw(x, op, t.bb);
+  x.clearRect(px0, py0, w, h);
+  x.setTransform(s, 0, 0, s, -t.bb[0] * s, -t.bb[1] * s);
+  drawRaw(x, op, area);
   if (masks?.length) {
     x.globalCompositeOperation = 'destination-out';
-    for (const m of masks) drawStroke(x, m, t.bb);
+    for (const m of masks) if (hits(area, m.bb)) drawStroke(x, m, area);
     x.globalCompositeOperation = 'source-over';
   }
   ctx.save();
   ctx.setTransform(1, 0, 0, 1, 0, 0);
   ctx.globalCompositeOperation = op.k === 'hl' || op.mul ? 'multiply' : 'source-over';
-  ctx.drawImage(c, 0, 0);
+  ctx.drawImage(c, px0, py0, w, h, px0, py0, w, h);
   ctx.restore();
 }
 

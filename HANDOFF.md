@@ -27,39 +27,37 @@ Misure su 1920×1080, senza scheda grafica. Contano le proporzioni, non i valori
 | Evidenziatore | 25 | 44 ms | 1,74 ms |
 | Immagini e testi | 21 | 9 ms | meno di 1 ms, salvo i testi con gomma |
 
-Con `npm run bench` il ridisegno dello schermo oggi misura 450-500 ms su questa macchina. Il salvataggio automatico costa circa 7 ms: non è un problema.
+Con `npm run bench` il ridisegno dello schermo misurava 495-523 ms su questa macchina; dopo il foglio d'appoggio ridotto (6 novembre 2026) misura 286-310 ms. Evidenziatore da 4,7-4,9 a 1,9-2,3 ms per disegno, penna con gomma da 6,1-6,8 a 1,5-1,9 ms. Il salvataggio automatico costa circa 7 ms: non è un problema.
+
+Il foglio d'appoggio di `paint` (`layers.js`) ora si limita al rettangolo dell'oggetto dentro il tassello, in pixel interi presi per eccesso. Verificato con screenshot del foglio reale a zoom 0,5, 1 e 2 e scala di schermo 1 e 1,5: zero pixel diversi rispetto a prima.
 
 L'utente percepisce la lavagna come lenta con un numero di oggetti modesto: il collo di bottiglia è nel codice, non nella quantità.
 
 ## Prossime attività
 
-Rilancia `npm run bench` prima e dopo ogni correzione delle prestazioni. Le prime tre sono state spiegate all'utente, che non le ha ancora approvate una per una: chiedi conferma se cambiano l'aspetto o il formato del file.
+Rilancia `npm run bench` prima e dopo ogni correzione delle prestazioni. Le prime due sono state spiegate all'utente, che non le ha ancora approvate una per una: chiedi conferma se cambiano l'aspetto o il formato del file.
 
-### 1. Foglio d'appoggio ridotto (priorità alta)
+### 1. Gomma più precisa (priorità alta)
 
-In `paint` (`layers.js`), evidenziatore e oggetti con gomma passano da un foglio temporaneo grande come il tassello. Va usato solo il rettangolo dell'oggetto intersecato col tassello. È il guadagno maggiore: quasi il 60% del tempo va in questo 6% dei disegni. Da verificare: stesso risultato a schermo, anche ai bordi, a zoom e scala di schermo diversi.
+In `endStroke` (`input.js`) la gomma si lega a tutto ciò il cui rettangolo tocca il suo. Va legata solo se il percorso passa davvero sull'oggetto, tenendo conto dei due spessori. Sul foglio reale 3 legami su 29 sono inutili, ma con gomme larghe su zone piene aumentano e ogni legame costa un passaggio dal foglio d'appoggio.
 
-### 2. Gomma più precisa (priorità alta)
-
-In `endStroke` (`input.js`) la gomma si lega a tutto ciò il cui rettangolo tocca il suo. Va legata solo se il percorso passa davvero sull'oggetto, tenendo conto dei due spessori. Sul foglio reale 3 legami su 29 sono inutili, ma con gomme larghe su zone piene aumentano e rallentano il punto 1.
-
-### 3. File più leggero (priorità media)
+### 2. File più leggero (priorità media)
 
 La stessa gomma è ripetuta in ogni oggetto toccato: nel foglio reale 11.070 punti invece di 732, circa 0,23 MB. Va scritta una sola volta in un elenco a parte. I file vecchi devono continuare ad aprirsi e serve aumentare `version`. Non migliora la fluidità.
 
-### 4. Indicatore di lentezza (dopo i punti 1 e 2)
+### 3. Indicatore di lentezza (dopo il punto 1)
 
 Non deve contare gli oggetti: a 822 oggetti scatterebbe un avviso sbagliato. Deve misurare il tempo reale di ridisegno e comparire solo se resta alto. La soglia va scelta dopo le correzioni, misurando sulla macchina dell'utente. Il tempo dell'ultimo ridisegno è già misurato (`S.lastRedraw`) e mostrato nel pannello.
 
-### 5. Meno punti per tratto (da valutare)
+### 4. Meno punti per tratto (da valutare)
 
 Un terzo dei punti dista meno di 1 px dal precedente. Con Douglas-Peucker a 0,25 px resterebbe circa il 35% dei punti, considerando solo la posizione. Il risparmio reale è minore perché vanno conservate le variazioni di pressione. Va applicato solo a tratto concluso e controllato a occhio sulla scrittura dell'utente.
 
-### 6. Immagini ridotte quando si incollano (opzionale)
+### 5. Immagini ridotte quando si incollano (opzionale)
 
 Il foglio reale ha un'immagine da 714×1298 mostrata a 210×382, che pesa 1,8 MB. Ridurla alleggerisce file e memoria, non il disegno, e toglie dettaglio a zoom alti. Solo come opzione.
 
-### 7. Multilingua (priorità bassa)
+### 6. Multilingua (priorità bassa)
 
 Richiesta dell'utente. Oggi testi dell'interfaccia, title, aria-label e messaggi sono in italiano, sparsi in `index.html` e nei moduli. Servirebbe un modulo con le stringhe per lingua e la scelta dalla lingua del browser. Da decidere con l'utente: quali lingue e se serve un selettore. La regola "Lingua: italiano" in `CLAUDE.md` resta valida per commenti e codice.
 
