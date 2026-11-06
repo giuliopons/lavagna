@@ -1,6 +1,6 @@
 {
   "name": "lavagna-a-mano-libera",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "private": true,
   "type": "module",
   "description": "Lavagna per scrivere a mano libera con la penna.",
