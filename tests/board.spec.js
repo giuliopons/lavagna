@@ -384,6 +384,47 @@ test('con Maiusc il tratto diventa una riga tra due puntini, solo con la griglia
   noErrors(errors);
 });
 
+test('con Ctrl il tratto a mano libera passa da un puntino all\'altro, solo con la griglia accesa', async ({ page }) => {
+  const errors = await openBoard(page);
+  const [px, py] = await page.evaluate(() => {
+    const m = /translate3d\(([-\d.]+)px,\s*([-\d.]+)px/.exec(document.getElementById('world').style.transform);
+    return [+m[1], +m[2]];
+  });
+  const dot = (v, p) => p + 14 + 28 * Math.round((v - p - 14) / 28);
+  const x0 = dot(300, px), y0 = dot(300, py), x1 = x0 + 28 * 6, y1 = y0 + 28 * 4;
+
+  // una L storta: a destra lungo una fila, poi giù lungo una colonna, sempre un po' fuori dai puntini
+  const wobblyL = async () => {
+    await page.mouse.move(x0 + 5, y0 + 6);
+    await page.mouse.down();
+    await page.mouse.move(x1 - 4, y0 + 7, { steps: 30 });
+    await page.mouse.move(x1 + 6, y1 - 5, { steps: 30 });
+    await page.mouse.up();
+    await page.waitForTimeout(80);
+  };
+  await page.keyboard.down('Control');
+  await wobblyL();
+  await page.keyboard.up('Control');
+  // i due lati passano sopra i puntini, non dove passava la mano
+  expect(await ink(page, x0 + 4, y0 - 2, x1 - x0 - 8, 4)).toBeGreaterThan((x1 - x0 - 8) * 1.5);
+  expect(await ink(page, x1 - 2, y0 + 4, 4, y1 - y0 - 8)).toBeGreaterThan((y1 - y0 - 8) * 1.5);
+  expect(await ink(page, x0 + 20, y0 + 5, x1 - x0 - 40, 4)).toBe(0);
+  expect(await ink(page, x1 + 4, y0 + 20, 4, y1 - y0 - 40)).toBe(0);
+  // l'angolo è netto, sul puntino
+  expect(await ink(page, x1 - 2, y0 - 2, 4, 4)).toBeGreaterThan(8);
+
+  // con la griglia spenta Ctrl non cambia nulla: il tratto segue la mano
+  await page.keyboard.press('Control+z');
+  await page.keyboard.press('i');
+  await page.click('label[for=showDots]');
+  await page.keyboard.press('Escape');
+  await page.keyboard.down('Control');
+  await wobblyL();
+  await page.keyboard.up('Control');
+  expect(await ink(page, x0 + 20, y0 + 4, x1 - x0 - 40, 4)).toBeGreaterThan(20);
+  noErrors(errors);
+});
+
 test('cartella dei disegni: salva, galleria, conflitti, rinomina, duplica, cestino', async ({ page }) => {
   // la finestra di scelta della cartella diventa una cartella nell'archivio privato del browser, con la stessa API
   await page.addInitScript(() => {

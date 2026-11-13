@@ -11,7 +11,7 @@ import { scheduleSave } from './storage.js';
 import { drawDot, drawSeg, drawStroke, drawTail, styleCtx } from './stroke.js';
 import { commitEdit, gripDrag, hoverText, textClick, textDrag, textRelease } from './text-editor.js';
 import { syncButtons } from './tray.js';
-import { setPan, snapGrid, wheelZoom } from './view.js';
+import { gridStep, setPan, snapGrid, wheelZoom } from './view.js';
 
 const rawMove = 'onpointerrawupdate' in window;
 
@@ -93,10 +93,37 @@ function lineMove(g, e) {
   drawStroke(g.ctx, { k: g.k, c: g.c, p: g.p });
 }
 
+/* Tratto agganciato alla griglia: con Ctrl premuto e i puntini accesi il tratto va da un puntino all'altro
+   seguendo la mano. Un puntino entra quando la penna gli passa abbastanza vicino, o subito se la mano corre
+   oltre il successivo. Ogni puntino è scritto due volte, così il disegno ci passa sopra e gli angoli restano netti */
+function gridMove(g, e) {
+  const w = g.size, step = gridStep();
+  if (!g.grid) g.grid = [snapGrid(g.p[0]), snapGrid(g.p[1])];
+  const [x, y] = toWorld(e), bx = snapGrid(x), by = snapGrid(y), d = g.grid;
+  const lx = d[d.length - 2], ly = d[d.length - 1];
+  if (bx === lx && by === ly && d.length > 2) return;
+  const near = Math.hypot(x - bx, y - by) < step * .35, far = Math.max(Math.abs(bx - lx), Math.abs(by - ly)) > step * 1.5;
+  if (d.length > 2 && !near && !far) return;
+  if (bx !== lx || by !== ly) d.push(bx, by);
+  const p = [];
+  for (let i = 0; i < d.length; i += 2) p.push(d[i], d[i + 1], w, d[i], d[i + 1], w);
+  g.p = p;
+  const r = w / 2 + 2, b = [Infinity, Infinity, -Infinity, -Infinity];
+  for (let i = 0; i < d.length; i += 2) {
+    b[0] = Math.min(b[0], d[i] - r); b[1] = Math.min(b[1], d[i + 1] - r);
+    b[2] = Math.max(b[2], d[i] + r); b[3] = Math.max(b[3], d[i + 1] + r);
+  }
+  g.bb = b;
+  if (g.k === 'pen') wipeInkNow();
+  else wipe(S.hlCtx, liveHl);
+  liveTransform(g.ctx);
+  drawStroke(g.ctx, { k: g.k, c: g.c, p: g.p });
+}
+
 function endStroke(e, keep) {
   const g = S.gest;
   S.gest = null;
-  if (keep && e && !g.line) {
+  if (keep && e && !g.line && !g.grid) {
     const [x, y] = toWorld(e);
     const a = g.p, n = a.length;
     if (Math.hypot(x - a[n - 3], y - a[n - 2]) > .1) {
@@ -271,7 +298,8 @@ export function initInput() {
     if (S.gest.id !== e.pointerId) return;
     moveRing(e);
     const g = S.gest;
-    if (g.k !== 'er' && (g.line || (e.shiftKey && S.showDots))) { lineMove(g, e); return; }
+    if (g.k !== 'er' && !g.grid && (g.line || (e.shiftKey && S.showDots))) { lineMove(g, e); return; }
+    if (g.k !== 'er' && (g.grid || ((e.ctrlKey || e.metaKey) && S.showDots))) { gridMove(g, e); return; }
     const list = e.getCoalescedEvents ? e.getCoalescedEvents() : null;
     if (list && list.length) for (const c of list) addPoint(c);
     else addPoint(e);

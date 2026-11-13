@@ -13,7 +13,7 @@ Se hai esportato i tuoi lavori dalla lavagna di Microsoft in formato PDF puoi an
 # FUNZIONI
 
 - **Penna** sensibile alla pressione, pensata per le tavolette Wacom, con tratto fluido e bassa latenza.
-- **Righe dritte** agganciate alla griglia di puntini, tenendo premuto Maiusc.
+- **Righe dritte** agganciate alla griglia di puntini, tenendo premuto Maiusc; con Ctrl il tratto a mano libera passa da un puntino all'altro.
 - **Evidenziatore** trasparente, che non copre la scrittura sotto.
 - **Gomma**, anche con la punta gomma della penna.
 - **Testo** scritto da tastiera, da spostare e modificare.
@@ -47,7 +47,7 @@ Se hai esportato i tuoi lavori dalla lavagna di Microsoft in formato PDF puoi an
 
 Colore e spessore si scelgono nel vassoio in basso.
 
-**Righe sulla griglia:** con la penna o l'evidenziatore, tieni premuto Maiusc mentre disegni: il tratto diventa una riga dritta da un puntino della griglia a un altro. Funziona solo con la griglia di puntini accesa.
+**Righe sulla griglia:** con la penna o l'evidenziatore, tieni premuto Maiusc mentre disegni: il tratto diventa una riga dritta da un puntino della griglia a un altro. Con Ctrl invece il tratto segue la mano ma si aggancia sempre ai puntini: va da un puntino all'altro, anche in diagonale e con gli angoli. Funziona solo con la griglia di puntini accesa.
 
 ### Selezione
 
