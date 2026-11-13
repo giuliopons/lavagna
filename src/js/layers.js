@@ -33,7 +33,7 @@ function tileAt(ix, iy, create) {
     const ctx = c.getContext('2d');
     const sc = S.tileScale * S.L.rz, w = T / S.L.rz;
     ctx.setTransform(sc, 0, 0, sc, -ix * T * S.tileScale, -iy * T * S.tileScale);
-    t = { c, ctx, ix, iy, scale: sc, bb: [ix * w, iy * w, (ix + 1) * w, (iy + 1) * w] };
+    t = { c, ctx, ix, iy, scale: sc, sheet: true, bb: [ix * w, iy * w, (ix + 1) * w, (iy + 1) * w] };
     S.L.tiles.set(key, t);
     S.L.el.appendChild(c);
   }
@@ -74,6 +74,8 @@ function drawRaw(ctx, op, clipBB) {
 }
 
 export function paint(t, op) {
+  // con il tratteggio in movimento le linee tratteggiate stanno sulla tela dell'animazione, non nei tasselli
+  if (S.dashPlay && op.k === 'da' && t.sheet) return;
   const ctx = t.ctx;
   const masks = op.masks?.filter(m => hits(t.bb, m.bb));
   if (op.k !== 'hl' && !masks?.length) { drawRaw(ctx, op, t.bb); return; }

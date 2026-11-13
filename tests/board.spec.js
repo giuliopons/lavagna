@@ -425,6 +425,102 @@ test('con Ctrl il tratto a mano libera passa da un puntino all\'altro, solo con 
   noErrors(errors);
 });
 
+// Punti d'inizio dei trattini lungo una riga di pixel dello schermo
+async function dashStarts(page, x, y, width) {
+  const buf = await page.screenshot({ clip: { x, y, width, height: 1 } });
+  return page.evaluate(async b64 => {
+    const bin = atob(b64), u = new Uint8Array(bin.length);
+    for (let i = 0; i < bin.length; i++) u[i] = bin.charCodeAt(i);
+    const img = await createImageBitmap(new Blob([u], { type: 'image/png' }));
+    const c = document.createElement('canvas');
+    c.width = img.width; c.height = 1;
+    const x = c.getContext('2d');
+    x.drawImage(img, 0, 0);
+    const d = x.getImageData(0, 0, c.width, 1).data, out = [];
+    let was = false;
+    for (let k = 0; k < c.width; k++) {
+      const on = d[k * 4] < 90;
+      if (on && !was) out.push(k);
+      was = on;
+    }
+    return out;
+  }, buf.toString('base64'));
+}
+
+test('linea tratteggiata: trattini continui, play unico per il foglio che li fa scorrere', async ({ page }) => {
+  const errors = await openBoard(page);
+  await expect(page.locator('#dashPlay')).toBeHidden();
+  await page.keyboard.press('l');
+  await expect(page.locator('#t-da')).toHaveAttribute('aria-pressed', 'true');
+  await line(page, 200, 300, 500, 300);
+  await page.waitForTimeout(80);
+  const still = await dashStarts(page, 210, 300, 280);
+  // spessore 3: un trattino ogni 15 px circa
+  expect(still.length).toBeGreaterThan(12);
+  expect(still.length).toBeLessThan(26);
+  await expect(page.locator('#dashPlay')).toBeVisible();
+
+  // play: i trattini corrono nel verso del disegno
+  await page.click('#dashPlay');
+  await expect(page.locator('#dashPlay')).toHaveAttribute('aria-pressed', 'true');
+  await page.waitForTimeout(150);
+  const a = await dashStarts(page, 210, 300, 280);
+  await page.waitForTimeout(170);
+  const b = await dashStarts(page, 210, 300, 280);
+  expect(a.length).toBeGreaterThan(12);
+  expect(b.join()).not.toBe(a.join());
+  // la tela dell'animazione ha la linea, i tasselli no
+  const tiles = await page.evaluate(() => [...document.querySelectorAll('#layers canvas')].some(c => {
+    const d = c.getContext('2d').getImageData(0, 0, c.width, c.height).data;
+    for (let k = 3; k < d.length; k += 4) if (d[k]) return true;
+    return false;
+  }));
+  expect(tiles).toBe(false);
+
+  // velocità: lo slider c'è solo durante l'animazione, a 2× i trattini corrono di più e la scelta resta nelle preferenze
+  await expect(page.locator('#dashSpeed')).toBeVisible();
+  const shift = async () => {
+    const p = await dashStarts(page, 210, 300, 280);
+    await page.waitForTimeout(50);
+    const q = await dashStarts(page, 210, 300, 280);
+    return ((q[2] - p[2]) % 15 + 15) % 15;
+  };
+  await page.evaluate(() => {
+    const r = document.getElementById('dashSpeed');
+    r.value = -2;
+    r.dispatchEvent(new Event('input', { bubbles: true }));
+  });
+  const slow = await shift();
+  await page.evaluate(() => {
+    const r = document.getElementById('dashSpeed');
+    r.value = 1;
+    r.dispatchEvent(new Event('input', { bubbles: true }));
+    r.dispatchEvent(new Event('change', { bubbles: true }));
+  });
+  const fast = await shift();
+  expect(fast).toBeGreaterThan(slow);
+  expect(await page.evaluate(() => JSON.parse(localStorage.getItem('lavagna-prefs')).dashSpeed)).toBe(1);
+  await expect(page.locator('#dashSpeed')).toHaveAttribute('title', /2×/);
+
+  // la tastiera A ferma: tornano fermi e di nuovo nei tasselli
+  await page.keyboard.press('a');
+  await expect(page.locator('#dashPlay')).toHaveAttribute('aria-pressed', 'false');
+  await expect(page.locator('#dashSpeed')).toBeHidden();
+  await page.waitForTimeout(80);
+  const c1 = await dashStarts(page, 210, 300, 280);
+  await page.waitForTimeout(150);
+  expect((await dashStarts(page, 210, 300, 280)).join()).toBe(c1.join());
+  expect(c1.join()).toBe(still.join());
+
+  // senza linee tratteggiate il tasto sparisce e l'animazione si ferma
+  await page.keyboard.press('a');
+  await page.keyboard.press('Control+z');
+  await expect(page.locator('#dashPlay')).toBeHidden();
+  await expect(page.locator('#dashPlay')).toHaveAttribute('aria-pressed', 'false');
+  expect(await ink(page, 200, 290, 300, 20)).toBe(0);
+  noErrors(errors);
+});
+
 test('cartella dei disegni: salva, galleria, conflitti, rinomina, duplica, cestino', async ({ page }) => {
   // la finestra di scelta della cartella diventa una cartella nell'archivio privato del browser, con la stessa API
   await page.addInitScript(() => {

@@ -1,5 +1,6 @@
 // Vassoio degli strumenti: strumento attivo, colori, spessore, bassa latenza.
 
+import { syncDashBtn } from './dash-anim.js';
 import { $, board } from './dom.js';
 import { clearBoard, redo, undo } from './history.js';
 import { commitPlace } from './images.js';
@@ -103,6 +104,7 @@ export function syncButtons() {
   $('undo').disabled = !S.undoStack.length;
   $('redo').disabled = !S.redoStack.length;
   $('clear').disabled = !S.ops.length;
+  syncDashBtn();
 }
 
 /* Bassa latenza: interruttore nel pannello delle impostazioni */

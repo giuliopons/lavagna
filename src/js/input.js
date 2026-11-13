@@ -8,7 +8,7 @@ import { liveTransform, wipe, wipeInkNow, wipeInkSoon } from './live.js';
 import { clearSel, marqueeDrag, marqueeEnd, selDown, selDrag, selDragEnd } from './selection.js';
 import { S, pan, tools, touches } from './state.js';
 import { scheduleSave } from './storage.js';
-import { drawDot, drawSeg, drawStroke, drawTail, styleCtx } from './stroke.js';
+import { drawDashed, drawDot, drawSeg, drawStroke, drawTail, styleCtx } from './stroke.js';
 import { commitEdit, gripDrag, hoverText, textClick, textDrag, textRelease } from './text-editor.js';
 import { syncButtons } from './tray.js';
 import { gridStep, setPan, snapGrid, wheelZoom } from './view.js';
@@ -53,7 +53,7 @@ function startStroke(e, kind) {
   g.w = widthFor(g, e);
   g.p.push(x, y, g.w);
   growBB(g, x, y, g.w);
-  if (kind === 'pen') { wipeInkNow(); g.ctx = S.inkCtx; }
+  if (kind === 'pen' || kind === 'da') { wipeInkNow(); g.ctx = S.inkCtx; }
   else if (kind === 'hl') g.ctx = S.hlCtx;
   if (g.ctx) { liveTransform(g.ctx); styleCtx(g.ctx, g); }
   S.gest = g;
@@ -71,6 +71,7 @@ function addPoint(e) {
   g.w += (widthFor(g, e) - g.w) * .4;
   a.push(g.fx, g.fy, g.w);
   growBB(g, g.fx, g.fy, g.w);
+  if (g.k === 'da') return;                // il tratteggio si ridisegna intero dopo i punti: liveDashed
   const i = a.length / 3 - 1;
   const r = g.w / 2 + 4;
   liveDraw(g, ctx => drawSeg(ctx, a, i), [
@@ -87,8 +88,8 @@ function lineMove(g, e) {
   const ax = g.line[0], ay = g.line[1], bx = snapGrid(x), by = snapGrid(y), r = w / 2 + 2;
   g.p = [ax, ay, w, bx, by, w];
   g.bb = [Math.min(ax, bx) - r, Math.min(ay, by) - r, Math.max(ax, bx) + r, Math.max(ay, by) + r];
-  if (g.k === 'pen') wipeInkNow();
-  else wipe(S.hlCtx, liveHl);
+  if (g.k === 'hl') wipe(S.hlCtx, liveHl);
+  else wipeInkNow();
   liveTransform(g.ctx);
   drawStroke(g.ctx, { k: g.k, c: g.c, p: g.p });
 }
@@ -114,10 +115,18 @@ function gridMove(g, e) {
     b[2] = Math.max(b[2], d[i] + r); b[3] = Math.max(b[3], d[i + 1] + r);
   }
   g.bb = b;
-  if (g.k === 'pen') wipeInkNow();
-  else wipe(S.hlCtx, liveHl);
+  if (g.k === 'hl') wipe(S.hlCtx, liveHl);
+  else wipeInkNow();
   liveTransform(g.ctx);
   drawStroke(g.ctx, { k: g.k, c: g.c, p: g.p });
+}
+
+/* Il tratteggio in corso si ridisegna intero a ogni movimento: a pezzi i trattini ripartirebbero
+   a ogni segmento. Costa poco, perché è un solo percorso */
+function liveDashed(g) {
+  wipeInkNow();
+  liveTransform(g.ctx);
+  drawDashed(g.ctx, { k: 'da', c: g.c, p: g.p }, 0, false);
 }
 
 function endStroke(e, keep) {
@@ -130,12 +139,12 @@ function endStroke(e, keep) {
       a.push(x, y, g.w);
       growBB(g, x, y, g.w);
       const i = a.length / 3 - 1;
-      liveDraw(g, ctx => drawSeg(ctx, a, i), g.bb);
+      if (g.k !== 'da') liveDraw(g, ctx => drawSeg(ctx, a, i), g.bb);
     }
-    liveDraw(g, ctx => drawTail(ctx, a), g.bb);
+    if (g.k !== 'da') liveDraw(g, ctx => drawTail(ctx, a), g.bb);
   }
   if (!keep) {
-    if (g.k === 'pen') wipeInkNow();
+    if (g.k === 'pen' || g.k === 'da') wipeInkNow();
     else if (g.k === 'hl') wipe(S.hlCtx, liveHl);
     else refresh(g.bb);
     updateHint();
@@ -152,7 +161,7 @@ function endStroke(e, keep) {
   S.ops.push(op);
   record({ t: 'add', op });
   forTiles(op.bb, true, t => paint(t, op));
-  if (g.k === 'pen') wipeInkSoon();
+  if (g.k === 'pen' || g.k === 'da') wipeInkSoon();
   else if (g.k === 'hl') wipe(S.hlCtx, liveHl);
 }
 
@@ -303,6 +312,7 @@ export function initInput() {
     const list = e.getCoalescedEvents ? e.getCoalescedEvents() : null;
     if (list && list.length) for (const c of list) addPoint(c);
     else addPoint(e);
+    if (g.k === 'da') liveDashed(g);
   });
   board.addEventListener('pointerup', e => pointerEnd(e, false));
   board.addEventListener('pointercancel', e => pointerEnd(e, true));

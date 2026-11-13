@@ -17,6 +17,7 @@ const prefs = load('lavagna-prefs') || {};
 export const tools = {
   pen: { c: INK[0], s: 3, min: 1, max: 24, step: .5 },
   hl:  { c: MARK[0], s: 24, min: 8, max: 64, step: 1 },
+  da:  { c: INK[0], s: 3, min: 1, max: 24, step: .5 },
   er:  { s: 32, min: 8, max: 140, step: 1 },
   se:  { s: 1, min: 1, max: 1, step: 1 },
   tx:  { c: INK[0], s: 28, min: 12, max: 96, step: 1 },
@@ -29,6 +30,8 @@ S.tool = tools[prefs.tool] ? prefs.tool : 'pen';
 S.lowLatency = prefs.lowLatency !== false;
 
 S.showDots = prefs.dots !== false;  // griglia di puntini sullo sfondo
+
+S.dashSpeed = Number.isFinite(prefs.dashSpeed) ? prefs.dashSpeed : 0;  // velocità dei trattini: 2^dashSpeed volte la normale
 
 S.ops = [];  // tutto ciò che è sul foglio, in ordine
 
@@ -70,7 +73,7 @@ function load(k) { try { return JSON.parse(localStorage.getItem(k)); } catch { r
 
 export function savePrefs() {
   try {
-    const o = { tool: S.tool, lowLatency: S.lowLatency, dots: S.showDots };
+    const o = { tool: S.tool, lowLatency: S.lowLatency, dots: S.showDots, dashSpeed: S.dashSpeed };
     for (const k in tools) o[k] = { c: tools[k].c, s: tools[k].s };
     localStorage.setItem('lavagna-prefs', JSON.stringify(o));
   } catch {}
@@ -86,3 +89,4 @@ S.cleanMode = false;
 S.saveTimer = 0;
 S.name = '';  // nome del foglio, usato per il file e il titolo della pagina
 S.lastRedraw = null;  // ultimo ridisegno completo dello schermo: { ms, tiles }
+S.dashPlay = false;  // linee tratteggiate in movimento: non si salva

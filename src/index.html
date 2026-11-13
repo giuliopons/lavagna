@@ -21,9 +21,12 @@
   <div class="group" id="tools">
     <button class="btn" id="t-pen" data-tool="pen" title="Penna (P)" aria-label="Penna"><svg viewBox="0 0 24 24"><path d="M4 20l1.2-4.6L16.6 4a2.1 2.1 0 0 1 3 0l.4.4a2.1 2.1 0 0 1 0 3L8.6 18.8 4 20z"/><path d="M14.5 6.2l3.3 3.3"/></svg></button>
     <button class="btn" id="t-hl" data-tool="hl" title="Evidenziatore (E)" aria-label="Evidenziatore"><svg viewBox="0 0 24 24"><path d="M9 14.5l-2.2 2.2 1.5 1.5L10.5 16"/><path d="M8 12.5L16.5 4l4.5 4.5-8.5 8.5a1.5 1.5 0 0 1-2.1 0L8 14.6a1.5 1.5 0 0 1 0-2.1z"/><path d="M3 21h9"/></svg></button>
+    <button class="btn" id="t-da" data-tool="da" title="Linea tratteggiata (L)" aria-label="Linea tratteggiata"><svg viewBox="0 0 24 24"><path d="M4.5 19.5l2.5-2.5M10 14l2.5-2.5M15.5 8.5L18 6"/></svg></button>
     <button class="btn" id="t-er" data-tool="er" title="Gomma (G)" aria-label="Gomma"><svg viewBox="0 0 24 24"><path d="M8.5 20L3.9 15.4a1.8 1.8 0 0 1 0-2.5l8.8-8.8a1.8 1.8 0 0 1 2.5 0l5 5a1.8 1.8 0 0 1 0 2.5L12 20z"/><path d="M8.3 8.6l7.1 7.1"/><path d="M8.5 20H20"/></svg></button>
     <button class="btn" id="t-tx" data-tool="tx" title="Testo (T)" aria-label="Testo"><svg viewBox="0 0 24 24"><path d="M5 7V5h14v2"/><path d="M12 5v14"/><path d="M9 19h6"/></svg></button>
     <button class="btn" id="t-se" data-tool="se" title="Selezione (V)" aria-label="Selezione"><svg viewBox="0 0 24 24"><path d="M4 8V5.5A1.5 1.5 0 0 1 5.5 4H8M12 4h1M4 12v1M4 17v1.5A1.5 1.5 0 0 0 5.5 20H7M17 4h1.5A1.5 1.5 0 0 1 20 5.5V7"/><path d="M11 11l9 3.4-3.9 1.7L14.4 20z"/></svg></button>
+    <button class="btn" id="dashPlay" hidden title="Anima le linee tratteggiate (A)" aria-label="Anima le linee tratteggiate" aria-pressed="false"><svg viewBox="0 0 24 24"><path id="dashPlayIcon" d="M8 5.5v13l10-6.5z"/></svg></button>
+    <input type="range" id="dashSpeed" min="-2" max="2" step="0.25" value="0" hidden aria-label="Velocità dei trattini" title="Velocità dei trattini">
   </div>
   <div class="rule"></div>
   <div class="group" id="colors" role="radiogroup" aria-label="Colore"></div>

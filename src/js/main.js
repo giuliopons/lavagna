@@ -1,6 +1,7 @@
 // Avvio dell'applicazione.
 
 import { initClipboard } from './clipboard.js';
+import { initDashAnim } from './dash-anim.js';
 import { initDebug } from './debug.js';
 import { docBlob, initFile } from './file.js';
 import { restoreFolder } from './folder.js';
@@ -44,6 +45,7 @@ initImages();
 initClipboard();
 initFile();
 initTray();
+initDashAnim();
 initViewModes();
 initKeyboard();
 initSheetInfo();

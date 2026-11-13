@@ -1,5 +1,6 @@
 // Scorciatoie da tastiera.
 
+import { toggleDashPlay } from './dash-anim.js';
 import { toggleDebug } from './debug.js';
 import { board } from './dom.js';
 import { doOpen, doSave } from './file.js';
@@ -34,15 +35,17 @@ export function initKeyboard() {
     if (e.key === 'Escape' && isPanelOpen() && !S.sel && !S.place) { togglePanel(false); return; }
     if (S.cleanMode) {
       if (e.key === 'Escape' || e.key.toLowerCase() === 'o') setClean(false);
+      else if (e.key.toLowerCase() === 'a' && !e.ctrlKey && !e.metaKey && !e.altKey) toggleDashPlay();
       return;
     }
     if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'z') { e.preventDefault(); e.shiftKey ? redo() : undo(); return; }
     if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'y') { e.preventDefault(); redo(); return; }
     if (e.ctrlKey || e.metaKey || e.altKey) return;
     if (e.code === 'Space' && !e.repeat) { S.spaceDown = true; board.classList.add('hand'); e.preventDefault(); return; }
-    const map = { p: 'pen', e: 'hl', g: 'er', t: 'tx', v: 'se' };
+    const map = { p: 'pen', e: 'hl', l: 'da', g: 'er', t: 'tx', v: 'se' };
     const k = e.key.toLowerCase();
     if (map[k]) setTool(map[k]);
+    else if (k === 'a') toggleDashPlay();
     else if (k === 'f') toggleFull();
     else if (k === 'o') setClean(true);
     else if (k === 'i') togglePanel();

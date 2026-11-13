@@ -115,7 +115,7 @@ button, input { font: inherit; }
 .btn:hover { background: var(--tray-raised); }
 .btn[aria-pressed="true"] { background: var(--tray-text); color: var(--tray); }
 .btn:disabled { color: #5d6672; background: transparent; cursor: default; }
-:is(.btn, .swatch, #sizeRange, #zoomRange, #customColor, #sheetName):focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; }
+:is(.btn, .swatch, #sizeRange, #zoomRange, #dashSpeed, #customColor, #sheetName):focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; }
 
 #colors { gap: 5px; padding-inline: 2px; }
 .swatch {
@@ -134,17 +134,18 @@ button, input { font: inherit; }
 #sizeDotBox { width: 30px; height: 30px; display: grid; place-items: center; flex: none; }
 #sizeDot { border-radius: 50%; max-width: 30px; max-height: 30px; background: var(--tray-text); box-shadow: 0 0 0 1.5px #ffffff66; }
 #zoomRange { width: 92px; }
+#dashSpeed { width: 72px; margin: 0 6px 0 2px; }
 #zoomVal { width: 3.5em; font-size: .8125rem; color: var(--tray-muted); font-variant-numeric: tabular-nums; }
-:is(#sizeRange, #zoomRange) {
+:is(#sizeRange, #zoomRange, #dashSpeed) {
   height: 24px; margin: 0; background: transparent; -webkit-appearance: none; appearance: none; cursor: pointer;
 }
 #sizeRange {
   width: 112px; height: 24px; margin: 0; background: transparent; -webkit-appearance: none; appearance: none; cursor: pointer;
 }
-:is(#sizeRange, #zoomRange)::-webkit-slider-runnable-track { height: 3px; border-radius: 2px; background: var(--tray-muted); }
-:is(#sizeRange, #zoomRange)::-webkit-slider-thumb { -webkit-appearance: none; width: 16px; height: 16px; margin-top: -6.5px; border-radius: 50%; background: var(--tray-text); border: 0; }
-:is(#sizeRange, #zoomRange)::-moz-range-track { height: 3px; border-radius: 2px; background: var(--tray-muted); }
-:is(#sizeRange, #zoomRange)::-moz-range-thumb { width: 16px; height: 16px; border-radius: 50%; background: var(--tray-text); border: 0; }
+:is(#sizeRange, #zoomRange, #dashSpeed)::-webkit-slider-runnable-track { height: 3px; border-radius: 2px; background: var(--tray-muted); }
+:is(#sizeRange, #zoomRange, #dashSpeed)::-webkit-slider-thumb { -webkit-appearance: none; width: 16px; height: 16px; margin-top: -6.5px; border-radius: 50%; background: var(--tray-text); border: 0; }
+:is(#sizeRange, #zoomRange, #dashSpeed)::-moz-range-track { height: 3px; border-radius: 2px; background: var(--tray-muted); }
+:is(#sizeRange, #zoomRange, #dashSpeed)::-moz-range-thumb { width: 16px; height: 16px; border-radius: 50%; background: var(--tray-text); border: 0; }
 #sizeVal { width: 3.1em; font-size: .8125rem; color: var(--tray-muted); font-variant-numeric: tabular-nums; }
 
 #toast {

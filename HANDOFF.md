@@ -2,19 +2,20 @@
 
 ## Stato attuale
 
-Funziona: penna con pressione, evidenziatore, gomma, testo, immagini, selezione con spostamento, scala, rotazione e ordine (davanti/dietro), copia e incolla, zoom, vista pulita, salvataggio automatico, Salva e Apri, import dei PDF della lavagna Microsoft, pannello delle impostazioni (nome del file, bassa latenza, statistiche, versione), PWA che si apre anche dal disco.
+Funziona: penna con pressione, evidenziatore, linea tratteggiata animata, gomma, testo, immagini, selezione con spostamento, scala, rotazione e ordine (davanti/dietro), copia e incolla, zoom, vista pulita, salvataggio automatico, Salva e Apri, import dei PDF della lavagna Microsoft, pannello delle impostazioni (nome del file, bassa latenza, statistiche, versione), PWA che si apre anche dal disco.
 
 Il repository è su https://github.com/giuliopons/lavagna, con `dist` inclusa: dopo ogni modifica al codice va rigenerata e messa nel commit.
 
 ### Note sulle funzioni già fatte
 
-- **Formato:** un file con forme importate (`sh`) o con testi e immagini ruotati (`r`) ha `version: 2`. Le versioni vecchie della lavagna non disegnano le forme e mostrano testi e immagini dritti.
+- **Formato:** un file con forme importate (`sh`), linee tratteggiate (`da`) o con testi e immagini ruotati (`r`) ha `version: 2`. Una versione vecchia disegna le linee tratteggiate come linee piene. Le versioni vecchie della lavagna non disegnano le forme e mostrano testi e immagini dritti.
 - **Import PDF:** gestisce i PDF stampati da Chromium come quelli della lavagna Microsoft. Object stream, cifratura e font senza `/ToUnicode` non sono gestiti: arriva un messaggio. I 5 PDF veri dell'utente (`Desktop\Microsoft Whiteboard`) restano fuori dal repository; il test usa un PDF sintetico.
 - **Scala:** un tratto molto ingrandito mostra piccoli rigonfiamenti alle giunture dei segmenti (disegno a pezzi con estremità tonde, su coordinate a metà pixel). Se con la penna vera si nota, il tratto a spessore costante va disegnato come un solo percorso.
 - **Ordine:** porta davanti e manda dietro spostano la selezione in cima o in fondo. Non c'è il passo singolo, un livello alla volta.
 - **Rotella:** la rotella e lo scorrimento della Wacom fanno di nuovo lo zoom attorno al puntatore, con il ridisegno nitido 350 ms dopo l'ultimo evento. Da provare con la Wacom vera: se è ancora lenta, alzare l'attesa in `wheelZoom` (`view.js`).
 - **Righe sulla griglia:** con Maiusc il tratto diventa una riga tra due puntini, spessore costante (quello dello strumento, senza pressione). Una volta diventato riga resta riga fino al sollevamento. Da provare con la penna vera: il tasto Maiusc va tenuto con l'altra mano.
 - **Tratto agganciato alla griglia:** con Ctrl (o Cmd) il tratto a mano libera va da un puntino all'altro mentre si disegna (`gridMove` in `input.js`): un puntino entra quando la penna gli passa a meno di 0,35 passi, o subito se la mano è già oltre di un passo e mezzo. Spessore costante e angoli netti (ogni puntino è scritto due volte). Resta agganciato fino al sollevamento. Da provare con la penna vera e su Mac.
+- **Linea tratteggiata (L):** oggetto `k: 'da'`, terne come la penna ma spessore costante; un solo percorso (`drawDashed` in `stroke.js`), trattino 2u + w e spazio 2u a vista, con u = max(w, 2). Il tasto ▶ (o A) anima tutte le linee del foglio insieme (`dash-anim.js`): durante l'animazione `paint` le salta nei tasselli e una tela sopra il foglio le ridisegna a ogni fotogramma, solo quelle visibili, con le loro gomme. Lo stato di play non si salva; la velocità (slider accanto a ▶, solo durante l'animazione, da ¼× a 4×) sì, in `lavagna-prefs` come `dashSpeed` (esponente in base 2, facoltativo). La fase si accumula fotogramma per fotogramma, così cambiando velocità i trattini non saltano. Limite noto: durante l'animazione le linee tratteggiate stanno sopra a tutto, anche agli oggetti messi davanti. Da provare con la penna vera e su fogli con molte linee tratteggiate.
 - **Cartella dei disegni:** fatta come da piano (6 novembre 2026). Apri mostra la galleria quando la cartella è collegata, Elimina sposta in `Eliminati`, si salva solo con Ctrl+S, niente sottocartelle. Il salvataggio su file del foglio reale passa da circa 66 a 173 ms per l'anteprima. Nei test la cartella è simulata con l'archivio privato del browser (OPFS), che su `file://` non è disponibile: le prove automatiche vanno fatte su `localhost`.
 - **Pannello:** con il pannello aperto le statistiche si aggiornano ogni secondo (circa 17 ms sul foglio reale), saltando i gesti in corso.
 

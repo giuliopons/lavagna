@@ -64,8 +64,8 @@ export async function docBlob() {
     if (o.k === 'im') out.data = await blobToData(o.blob);
     return out;
   }));
-  // forme importate da PDF e testi o immagini ruotati (campo r) arrivano con la versione 2
-  const version = S.ops.some(o => o.k === 'sh' || o.r) ? 2 : 1;
+  // forme importate da PDF, linee tratteggiate e testi o immagini ruotati (campo r) arrivano con la versione 2
+  const version = S.ops.some(o => o.k === 'sh' || o.k === 'da' || o.r) ? 2 : 1;
   // l'anteprima va per prima: la galleria legge solo l'inizio del file. Le versioni vecchie la ignorano
   const preview = makePreview();
   const doc = { ...(preview ? { preview } : {}), app: FILE_APP, version, name: S.name, pan: { ...pan }, zoom: S.zoom, ops: list };

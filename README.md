@@ -15,6 +15,7 @@ Se hai esportato i tuoi lavori dalla lavagna di Microsoft in formato PDF puoi an
 - **Penna** sensibile alla pressione, pensata per le tavolette Wacom, con tratto fluido e bassa latenza.
 - **Righe dritte** agganciate alla griglia di puntini, tenendo premuto Maiusc; con Ctrl il tratto a mano libera passa da un puntino all'altro.
 - **Evidenziatore** trasparente, che non copre la scrittura sotto.
+- **Linea tratteggiata**, ferma oppure animata con il tasto ▶: i trattini scorrono nel verso in cui hai disegnato.
 - **Gomma**, anche con la punta gomma della penna.
 - **Testo** scritto da tastiera, da spostare e modificare.
 - **Immagini** incollate dagli appunti o aperte da file.
@@ -43,13 +44,16 @@ Se hai esportato i tuoi lavori dalla lavagna di Microsoft in formato PDF puoi an
 |---|---|
 | P | Penna |
 | E | Evidenziatore |
+| L | Linea tratteggiata |
 | G | Gomma. Con la penna puoi anche girarla e usare la punta gomma |
 | T | Testo: clic sul foglio e scrivi. Clic su un testo per modificarlo, trascinalo per spostarlo |
 | V | Selezione |
 
 Colore e spessore si scelgono nel vassoio in basso.
 
-**Righe sulla griglia:** con la penna o l'evidenziatore, tieni premuto Maiusc mentre disegni: il tratto diventa una riga dritta da un puntino della griglia a un altro. Con Ctrl invece il tratto segue la mano ma si aggancia sempre ai puntini: va da un puntino all'altro, anche in diagonale e con gli angoli. Funziona solo con la griglia di puntini accesa.
+**Linee tratteggiate animate:** quando sul foglio c'è almeno una linea tratteggiata, nel vassoio compare il tasto ▶ (oppure premi A, anche in vista pulita). Fa scorrere i trattini di tutte le linee tratteggiate del foglio, nel verso in cui le hai disegnate; premendolo di nuovo si fermano. Mentre scorrono, accanto al tasto c'è uno slider per la velocità, da un quarto a quattro volte la normale: la lavagna se la ricorda. Per invertire il verso, ridisegna la linea al contrario.
+
+**Righe sulla griglia:** con la penna, l'evidenziatore o la linea tratteggiata, tieni premuto Maiusc mentre disegni: il tratto diventa una riga dritta da un puntino della griglia a un altro. Con Ctrl invece il tratto segue la mano ma si aggancia sempre ai puntini: va da un puntino all'altro, anche in diagonale e con gli angoli. Funziona solo con la griglia di puntini accesa.
 
 ### Selezione
 

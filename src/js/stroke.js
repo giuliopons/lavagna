@@ -121,7 +121,45 @@ export function drawTail(ctx, a) {
   ctx.stroke();
 }
 
+/* Linee tratteggiate (k: 'da'): spessore costante, un solo percorso con le stesse curve tra i punti medi
+   del tratto normale, così i trattini corrono continui lungo tutta la linea. Con le punte tonde
+   il trattino a vista è lungo 2u + w e lo spazio 2u */
+const dashPaths = new WeakMap();
+
+export function dashPattern(w) {
+  const u = Math.max(w, 2);
+  return [2 * u, 2 * u + w];
+}
+
+function buildDashPath(a) {
+  const path = new Path2D(), n = a.length / 3;
+  path.moveTo(a[0], a[1]);
+  for (let i = 1; i < n; i++) {
+    const j = i * 3, ex = (a[j - 3] + a[j]) / 2, ey = (a[j - 2] + a[j + 1]) / 2;
+    if (i === 1) path.lineTo(ex, ey);
+    else path.quadraticCurveTo(a[j - 3], a[j - 2], ex, ey);
+  }
+  if (n > 1) path.lineTo(a[a.length - 3], a[a.length - 2]);
+  return path;
+}
+
+// cache: true per gli oggetti del foglio, che non cambiano; il tratto in corso si ricostruisce ogni volta
+export function drawDashed(ctx, op, offset = 0, cache = true) {
+  const a = op.p, w = a[2];
+  styleCtx(ctx, op);
+  if (a.length === 3) { drawDot(ctx, a); return; }
+  let path = cache ? dashPaths.get(op) : null;
+  if (!path) { path = buildDashPath(a); if (cache) dashPaths.set(op, path); }
+  ctx.lineWidth = w;
+  ctx.setLineDash(dashPattern(w));
+  ctx.lineDashOffset = offset;
+  ctx.stroke(path);
+  ctx.setLineDash([]);
+  ctx.lineDashOffset = 0;
+}
+
 export function drawStroke(ctx, op, clipBB) {
+  if (op.k === 'da') { drawDashed(ctx, op); return; }
   styleCtx(ctx, op);
   const a = op.p, n = a.length / 3;
   drawDot(ctx, a);

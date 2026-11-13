@@ -38,6 +38,7 @@ La versione nel pannello delle impostazioni viene da `version` in `package.json`
 | `stroke.js` | Geometria del tratto |
 | `text-render.js` | Misura e disegno del testo |
 | `live.js` | Tele del tratto in corso, con bassa latenza |
+| `dash-anim.js` | Linee tratteggiate in movimento: tasto ▶ (o A), slider della velocità (`S.dashSpeed`, in `lavagna-prefs`), tela sopra il foglio ridisegnata a ogni fotogramma |
 | `view.js` | Spostamento e zoom |
 | `input.js` | Gesti di penna, mouse e dita, anello della gomma |
 | `text-editor.js` | Editor di testo e trascinamento dei testi |
@@ -70,6 +71,7 @@ La versione nel pannello delle impostazioni viene da `version` in `package.json`
 - **Tasselli:** `L.known` indica quelli aggiornati. Modificando `S.ops` chiama `refresh` sulla zona toccata o `repaintAll`. Quelli fuori schermo si disegnano quando servono. Quando cambiano più oggetti insieme (selezione, annulla, incolla) usa `refreshMany(bbs)`, che ridisegna ogni tassello una volta sola: un `refresh` per oggetto ridisegna gli stessi tasselli N volte e con un foglio intero blocca la pagina per secondi.
 - **Gomma:** è una maschera dentro `op.masks`, non un oggetto. I file vecchi con `k: 'er'` passano da `normalizeOps`.
 - **Forme importate (`k: 'sh'`):** contorni esatti dai PDF. `p` resta a terne, ma la terza cifra è un segno (1 inizio sottopercorso, 2 chiusura), non uno spessore. Si disegnano con `drawShape` (`stroke.js`); un file che ne contiene ha `version: 2`.
+- **Linee tratteggiate (`k: 'da'`):** terne come la penna, spessore costante. Si disegnano con `drawDashed` (`stroke.js`) come un solo percorso, così il tratteggio è continuo: dal vivo il tratto in corso si ridisegna intero (`liveDashed` in `input.js`). Con `S.dashPlay` acceso `paint` le salta nei tasselli veri (`t.sheet`) e le disegna `dash-anim.js`; le tele finte (anteprima, gruppo trascinato) le disegnano ferme. Un file che ne contiene ha `version: 2`.
 - **Rotazione:** tratti, gomme e forme ruotano nei punti. Testi e immagini hanno il campo `r` (radianti), con perno nell'angolo in alto a sinistra `x, y`: il loro `bb` si calcola con `boxBB` (`stroke.js`) e il clic con `inBox` (`objects.js`). Un file con `r` ha `version: 2`.
 - **Righe sulla griglia:** con Maiusc e `S.showDots` il tratto di penna o evidenziatore diventa una riga tra due puntini (`lineMove` in `input.js`); con Ctrl va da un puntino all'altro seguendo la mano (`gridMove` in `input.js`: ogni puntino è scritto due volte, così gli angoli restano netti). Il passo e l'aggancio vengono da `gridStep` e `snapGrid` in `view.js`. I puntini stanno a (k + 0,5) × `gridStep()`; il controllo sta nel gestore del movimento, non in `addPoint`.
 - **Fluidità del tratto:** nessun calcolo in più nel percorso di `addPoint`. Usa `getCoalescedEvents` e disegna solo il pezzo nuovo.

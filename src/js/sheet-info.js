@@ -7,7 +7,7 @@ import { scheduleSave } from './storage.js';
 
 const APP_TITLE = 'Lavagna a mano libera';
 
-const KINDS = [['pen', 'Tratti di penna'], ['hl', 'Evidenziature'], ['tx', 'Testi'], ['im', 'Immagini'], ['sh', 'Forme importate']];
+const KINDS = [['pen', 'Tratti di penna'], ['hl', 'Evidenziature'], ['da', 'Linee tratteggiate'], ['tx', 'Testi'], ['im', 'Immagini'], ['sh', 'Forme importate']];
 
 let updateTimer = 0;
 let tickTimer = 0;

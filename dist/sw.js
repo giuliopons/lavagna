@@ -1,13 +1,13 @@
 // Generato da scripts/build.mjs: la versione cambia da sola quando cambiano i file.
-const CACHE = 'lavagna-9a079feb8e2d';
+const CACHE = 'lavagna-2de030c7d00b';
 const FILES = [
   "./",
   "assets/familjen-grotesk-latin-500-normal-BASv1Bog.woff2",
   "assets/familjen-grotesk-latin-600-normal-DR8FYmV8.woff2",
   "assets/familjen-grotesk-latin-ext-500-normal-C6C0U28C.woff2",
   "assets/familjen-grotesk-latin-ext-600-normal-K2kKrvU3.woff2",
-  "assets/index-CJ8HGASf.js",
-  "assets/style-BphdtXgt.css",
+  "assets/index-GxRsCU2w.js",
+  "assets/style-CDLABy_x.css",
   "icons/apple-touch-icon.png",
   "icons/favicon.ico",
   "icons/favicon.svg",
