@@ -3,7 +3,7 @@
 import { hint } from './dom.js';
 import { forgetFile } from './file.js';
 import { commitPlace } from './images.js';
-import { dropTiles, refresh, repaintAll } from './layers.js';
+import { dropTiles, refresh, refreshMany, repaintAll } from './layers.js';
 import { clearSel } from './selection.js';
 import { setName, updatePanelSoon } from './sheet-info.js';
 import { S } from './state.js';
@@ -42,7 +42,7 @@ function apply(h, undoing) {
     case 'addmany':
       if (undoing) S.ops.splice(S.ops.length - h.ops.length, h.ops.length);
       else S.ops.push(...h.ops);
-      for (const o of h.ops) refresh(o.bb);
+      refreshMany(h.ops.map(o => o.bb));
       break;
     case 'erase':
       for (const o of h.targets) {
@@ -53,12 +53,12 @@ function apply(h, undoing) {
       break;
     case 'selmove':
       h.idx.forEach((i, k) => { S.ops[i] = undoing ? h.a[k] : h.b[k]; });
-      for (const o of [...h.a, ...h.b]) refresh(o.bb);
+      refreshMany([...h.a, ...h.b].map(o => o.bb));
       break;
     case 'delsel':
       if (undoing) for (const it of h.items) S.ops.splice(it.i, 0, it.op);
       else for (let k = h.items.length - 1; k >= 0; k--) S.ops.splice(h.items[k].i, 1);
-      for (const it of h.items) refresh(it.op.bb);
+      refreshMany(h.items.map(it => it.op.bb));
       break;
     case 'load':
       S.ops = undoing ? h.a : h.b;

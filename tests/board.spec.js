@@ -805,3 +805,35 @@ test('importa un PDF della lavagna Microsoft e un PNG da Apri', async ({ page },
   await expect(page.locator('#toast')).toContainText('PDF');
   noErrors(errors);
 });
+
+test('seleziona tutto su un foglio vero: spostare e annullare non bloccano la pagina', async ({ page }) => {
+  const errors = await openBoard(page);
+  await page.setInputFiles('#fileInput', FIXTURE);
+  await page.waitForTimeout(800);
+  await page.keyboard.press('v');
+  await page.keyboard.press('Control+a');
+  const box = await rect(page, 'selBox');
+  expect(box).not.toBeNull();
+  // un punto del riquadro visibile sullo schermo
+  const x = Math.max(box.x, 60) + 40, y = Math.max(box.y, 80) + 40;
+  await page.mouse.move(x, y);
+  await page.mouse.down();
+  await page.mouse.move(x + 60, y + 50, { steps: 4 });
+  await expect(page.locator('#selFloat')).toHaveCount(1);
+  let t = Date.now();
+  await page.mouse.up();
+  const moveMs = Date.now() - t;
+  await expect(page.locator('#selFloat')).toHaveCount(0);
+  const moved = await rect(page, 'selBox');
+  expect(moved.x - box.x).toBeCloseTo(60, -1);
+  expect(moved.y - box.y).toBeCloseTo(50, -1);
+
+  t = Date.now();
+  await page.keyboard.press('Control+z');
+  await page.evaluate(() => new Promise(requestAnimationFrame));
+  const undoMs = Date.now() - t;
+  console.log(`rilascio ${moveMs} ms, annulla ${undoMs} ms`);
+  expect(moveMs).toBeLessThan(3000);
+  expect(undoMs).toBeLessThan(3000);
+  noErrors(errors);
+});

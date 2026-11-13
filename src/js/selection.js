@@ -3,7 +3,7 @@
 import { board, world } from './dom.js';
 import { afterChange, record } from './history.js';
 import { toWorld } from './input.js';
-import { hits, paint, refresh } from './layers.js';
+import { hits, paint, refresh, refreshMany } from './layers.js';
 import { inBox, rotateOp, scaleOp, shiftOp } from './objects.js';
 import { S } from './state.js';
 import { shapePath } from './stroke.js';
@@ -213,18 +213,25 @@ export function selDragEnd() {
   board.classList.remove('rotating', 'below');
   if (!float || !S.sel) return;
   const a = S.sel.ops, oldBB = S.sel.bb;
-  const idx = a.map(o => S.ops.indexOf(o));
+  const pos = opIndex();
+  const idx = a.map(o => pos.get(o));
   const b = a.map(mode === 'scale' ? o => scaleOp(o, oldBB[0], oldBB[1], k)
     : mode === 'rotate' ? o => rotateOp(o, cx, cy, angle)
       : o => shiftOp(o, dx, dy));
   for (const o of a) o.hidden = false;
   idx.forEach((i, j) => { S.ops[i] = b[j]; });
   record({ t: 'selmove', idx, a, b });
-  refresh(oldBB);
-  for (const o of b) refresh(o.bb);
+  refreshMany([oldBB, ...b.map(o => o.bb)]);
   float.remove();
   setSel(b);
   afterChange();
+}
+
+// Posizione di ogni oggetto in S.ops, calcolata una volta sola
+function opIndex() {
+  const pos = new Map();
+  S.ops.forEach((o, i) => pos.set(o, i));
+  return pos;
 }
 
 /* Ordine: la selezione va sopra o sotto tutti gli altri oggetti, conservando il suo ordine interno */
@@ -242,10 +249,12 @@ export function selOrder(front) {
 }
 
 export function selDelete() {
-  const items = S.sel.ops.map(op => ({ op, i: S.ops.indexOf(op) })).sort((p, q) => p.i - q.i);
-  for (let k = items.length - 1; k >= 0; k--) S.ops.splice(items[k].i, 1);
+  const pos = opIndex();
+  const items = S.sel.ops.map(op => ({ op, i: pos.get(op) })).sort((p, q) => p.i - q.i);
+  const gone = new Set(S.sel.ops);
+  S.ops = S.ops.filter(o => !gone.has(o));
   record({ t: 'delsel', items });
-  for (const it of items) refresh(it.op.bb);
+  refreshMany(items.map(it => it.op.bb));
   clearSel();
   afterChange();
 }

@@ -104,9 +104,13 @@ export function paint(t, op) {
   ctx.restore();
 }
 
-export function refresh(bb) {
-  const w = T / S.L.rz;
-  forCells(bb, (ix, iy) => {
+export function refresh(bb) { refreshMany([bb]); }
+
+// Ridisegna una volta sola ogni tassello toccato da almeno uno dei riquadri
+export function refreshMany(bbs) {
+  const w = T / S.L.rz, cells = new Map();
+  for (const bb of bbs) forCells(bb, (ix, iy) => cells.set(ix + ',' + iy, [ix, iy]));
+  cells.forEach(([ix, iy]) => {
     const cell = [ix * w, iy * w, (ix + 1) * w, (iy + 1) * w];
     const list = S.ops.filter(op => !op.hidden && hits(cell, op.bb));
     const t = tileAt(ix, iy, list.length > 0);
