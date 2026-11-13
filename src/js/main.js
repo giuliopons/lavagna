@@ -15,6 +15,7 @@ import { initSheetInfo, setName } from './sheet-info.js';
 import { restore, save } from './storage.js';
 import { styleEditor } from './text-editor.js';
 import { textBB } from './text-render.js';
+import { toast } from './toast.js';
 import { initTray, syncButtons, syncLow, syncTool } from './tray.js';
 import { applyPan, initView, setPan, setZoom, settleZoom } from './view.js';
 import { fullBtn, initViewModes } from './view-modes.js';
@@ -84,7 +85,18 @@ document.fonts?.ready.then(() => {
 
 window.addEventListener('pagehide', () => { clearTimeout(S.saveTimer); save(); });
 
-if (__PWA__ && 'serviceWorker' in navigator) navigator.serviceWorker.register('sw.js').catch(() => {});
+/* Aggiornamenti: l'app installata può restare aperta per giorni, quindi si controlla anche quando la finestra
+   torna in primo piano. Quando il service worker nuovo prende il comando, la pagina ha ancora il codice vecchio:
+   si avvisa invece di ricaricare da soli, per non interrompere un tratto o un testo */
+if (__PWA__ && 'serviceWorker' in navigator) {
+  const had = !!navigator.serviceWorker.controller;
+  navigator.serviceWorker.register('sw.js').then(reg => {
+    document.addEventListener('visibilitychange', () => { if (!document.hidden) reg.update().catch(() => {}); });
+  }).catch(() => {});
+  navigator.serviceWorker.addEventListener('controllerchange', () => {
+    if (had) toast('È arrivata una nuova versione della lavagna: ricarica la pagina (F5) per usarla.', 10000);
+  });
+}
 
 // Solo per npm run bench
 if (__BENCH__) window.__bench = { S, paint, repaintAll, ensureStep, docBlob, setZoom, settleZoom, hits };

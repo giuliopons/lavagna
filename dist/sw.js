@@ -1,12 +1,12 @@
 // Generato da scripts/build.mjs: la versione cambia da sola quando cambiano i file.
-const CACHE = 'lavagna-50023aee2a31';
+const CACHE = 'lavagna-9a079feb8e2d';
 const FILES = [
   "./",
   "assets/familjen-grotesk-latin-500-normal-BASv1Bog.woff2",
   "assets/familjen-grotesk-latin-600-normal-DR8FYmV8.woff2",
   "assets/familjen-grotesk-latin-ext-500-normal-C6C0U28C.woff2",
   "assets/familjen-grotesk-latin-ext-600-normal-K2kKrvU3.woff2",
-  "assets/index-B2CjuBgY.js",
+  "assets/index-CJ8HGASf.js",
   "assets/style-BphdtXgt.css",
   "icons/apple-touch-icon.png",
   "icons/favicon.ico",
@@ -20,7 +20,10 @@ const FILES = [
 ];
 
 self.addEventListener('install', e => {
-  e.waitUntil(caches.open(CACHE).then(c => c.addAll(FILES)).then(() => self.skipWaiting()));
+  // cache: 'reload' scavalca la cache HTTP: la copia salvata è quella appena caricata sul sito
+  e.waitUntil(caches.open(CACHE)
+    .then(c => c.addAll(FILES.map(f => new Request(f, { cache: 'reload' }))))
+    .then(() => self.skipWaiting()));
 });
 
 self.addEventListener('activate', e => {
@@ -32,10 +35,15 @@ self.addEventListener('activate', e => {
 });
 
 // Prima la rete, così gli aggiornamenti arrivano da soli; senza rete, la copia salvata.
+// I file in assets/ hanno l'impronta nel nome e possono venire dalla cache HTTP; gli altri (index.html,
+// manifest, icone) si chiedono sempre al server con cache: 'no-cache', che costa poco se non sono cambiati.
+// Una richiesta di navigazione non accetta opzioni: si rifà dall'indirizzo
 self.addEventListener('fetch', e => {
-  if (e.request.method !== 'GET' || new URL(e.request.url).origin !== location.origin) return;
+  const url = new URL(e.request.url);
+  if (e.request.method !== 'GET' || url.origin !== location.origin) return;
+  const fresh = url.pathname.includes('/assets/') ? e.request : new Request(url.href, { cache: 'no-cache', credentials: 'same-origin' });
   e.respondWith(
-    fetch(e.request)
+    fetch(fresh)
       .then(r => {
         if (r.ok) {
           const copy = r.clone();
