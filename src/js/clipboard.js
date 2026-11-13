@@ -49,14 +49,22 @@ export function pasteClip() {
   afterChange();
 }
 
+/* Copia e incolla restano al browser solo in un campo di testo o con del testo selezionato nel pannello.
+   Un interruttore o un pulsante del pannello tiene il focus anche dopo, mentre si lavora sul foglio */
+export function nativeClip(e) {
+  if (e.target.matches?.('input[type=text], textarea')) return true;
+  const s = getSelection();
+  return !!s && !s.isCollapsed && !!s.anchorNode && document.getElementById('panel').contains(s.anchorNode);
+}
+
 export function initClipboard() {
   window.addEventListener('copy', e => {
-    if (!S.sel || S.edit || S.cleanMode || S.gallery || S.modal || e.target.closest?.('#panel')) return;
+    if (!S.sel || S.edit || S.cleanMode || S.gallery || S.modal || nativeClip(e)) return;
     copySel(e);
     toast(S.sel.ops.length === 1 ? 'Oggetto copiato.' : S.sel.ops.length + ' oggetti copiati.', 1400);
   });
   window.addEventListener('cut', e => {
-    if (!S.sel || S.edit || S.cleanMode || S.gallery || S.modal || e.target.closest?.('#panel')) return;
+    if (!S.sel || S.edit || S.cleanMode || S.gallery || S.modal || nativeClip(e)) return;
     copySel(e);
     selDelete();
   });

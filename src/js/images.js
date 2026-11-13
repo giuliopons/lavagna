@@ -1,6 +1,6 @@
 // Immagini incollate: prima si posizionano, poi diventano parte del foglio.
 
-import { CLIP_PREFIX, pasteClip } from './clipboard.js';
+import { CLIP_PREFIX, nativeClip, pasteClip } from './clipboard.js';
 import { world } from './dom.js';
 import { afterChange, record, updateHint } from './history.js';
 import { forTiles, paint } from './layers.js';
@@ -71,7 +71,7 @@ export function cancelPlace() {
 
 export function initImages() {
   window.addEventListener('paste', e => {
-    if (S.cleanMode || S.gallery || S.modal || e.target.closest?.('#panel')) return;
+    if (S.cleanMode || S.gallery || S.modal || nativeClip(e)) return;
     const pastedText = e.clipboardData?.getData('text/plain') || '';
     if (pastedText.startsWith(CLIP_PREFIX)) {
       e.preventDefault();

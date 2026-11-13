@@ -837,3 +837,34 @@ test('seleziona tutto su un foglio vero: spostare e annullare non bloccano la pa
   expect(undoMs).toBeLessThan(3000);
   noErrors(errors);
 });
+
+test('copia e incolla funzionano con il pannello aperto e il focus su un suo interruttore', async ({ page, context }) => {
+  await context.grantPermissions(['clipboard-read', 'clipboard-write']);
+  const errors = await openBoard(page);
+  await line(page, 100, 100, 300, 100);
+  await page.keyboard.press('i');
+  await expect(page.locator('#panel')).toBeVisible();
+  // un clic sull'interruttore lascia il focus nel pannello
+  await page.locator('#lowLat').click();
+  await page.locator('#lowLat').click();
+  await expect(page.locator('#lowLat')).toBeFocused();
+  await page.keyboard.press('v');
+  await page.mouse.click(200, 100);
+  await page.waitForTimeout(30);
+  await page.keyboard.press('Control+c');
+  await page.waitForTimeout(60);
+  await expect(page.locator('#toast')).toHaveText('Oggetto copiato.');
+  await page.keyboard.press('Control+v');
+  await page.waitForTimeout(80);
+  expect(await ink(page, 134, 116, 120, 16)).toBeGreaterThan(100);
+
+  // nel campo del nome copia e incolla restano del browser
+  await page.locator('#sheetName').fill('abc');
+  await page.locator('#sheetName').focus();
+  await page.keyboard.press('Control+a');
+  await page.keyboard.press('Control+c');
+  await page.keyboard.press('End');
+  await page.keyboard.press('Control+v');
+  await expect(page.locator('#sheetName')).toHaveValue('abcabc');
+  noErrors(errors);
+});
