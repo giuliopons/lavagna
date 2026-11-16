@@ -325,7 +325,7 @@ test('selezione: porta davanti e manda dietro, con pulsanti e PagSu/PagGiù', as
 
   await page.keyboard.press('v');
   await page.mouse.click(300, 250);                              // seleziona la linea nera
-  await expect(page.locator('#selOrder button')).toHaveCount(2);
+  await expect(page.locator('#selOrder button')).toHaveCount(3);
   await page.click('#selOrder [data-order=back]');
   await page.waitForTimeout(60);
   expect(await top()).toBe('rosso');
@@ -338,6 +338,16 @@ test('selezione: porta davanti e manda dietro, con pulsanti e PagSu/PagGiù', as
   await page.waitForTimeout(60);
   expect(await top()).toBe('rosso');
 
+  await page.keyboard.press('Control+z');
+  await page.waitForTimeout(60);
+  expect(await top()).toBe('nero');
+
+  // il cestino elimina la selezione, come Canc (da mobile non c'è la tastiera)
+  await page.mouse.click(300, 250);
+  await page.click('#selOrder [data-order=del]');
+  await page.waitForTimeout(60);
+  await expect(page.locator('#selBox')).toHaveCount(0);
+  expect(await top()).toBe('rosso');
   await page.keyboard.press('Control+z');
   await page.waitForTimeout(60);
   expect(await top()).toBe('nero');
@@ -1003,5 +1013,27 @@ test('copia e incolla funzionano con il pannello aperto e il focus su un suo int
   await page.keyboard.press('End');
   await page.keyboard.press('Control+v');
   await expect(page.locator('#sheetName')).toHaveValue('abcabc');
+  noErrors(errors);
+});
+
+test('due dita sul telefono: allargandole si ingrandisce attorno al punto tra le dita', async ({ page }) => {
+  const errors = await openBoard(page);
+  await line(page, 580, 380, 620, 380);
+  expect(await ink(page, 520, 374, 20, 12)).toBe(0);
+  const cdp = await page.context().newCDPSession(page);
+  const touch = (type, pts) => cdp.send('Input.dispatchTouchEvent', { type, touchPoints: pts.map(([x, y], id) => ({ x, y, id })) });
+  await touch('touchStart', [[550, 380], [650, 380]]);
+  for (let i = 1; i <= 10; i++) {
+    const d = 50 + 5 * i;                                         // da 100 a 200 px fra le dita
+    await touch('touchMove', [[600 - d, 380], [600 + d, 380]]);
+  }
+  await touch('touchEnd', []);
+  await page.waitForTimeout(400);
+  await expect(page.locator('#zoomVal')).toHaveText('200%');
+  // il centro resta tra le dita: il tratto ora va da 560 a 640
+  expect(await ink(page, 560, 374, 15, 12)).toBeGreaterThan(30);
+  expect(await ink(page, 625, 374, 15, 12)).toBeGreaterThan(30);
+  expect(await ink(page, 500, 374, 30, 12)).toBe(0);
+  expect(await ink(page, 670, 374, 30, 12)).toBe(0);
   noErrors(errors);
 });

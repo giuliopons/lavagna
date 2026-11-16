@@ -11,7 +11,7 @@ import { scheduleSave } from './storage.js';
 import { drawDashed, drawDot, drawSeg, drawStroke, drawTail, styleCtx } from './stroke.js';
 import { commitEdit, gripDrag, hoverText, textClick, textDrag, textRelease } from './text-editor.js';
 import { syncButtons } from './tray.js';
-import { gridStep, setPan, snapGrid, wheelZoom } from './view.js';
+import { gridStep, setPan, setZoom, snapGrid, wheelZoom } from './view.js';
 
 const rawMove = 'onpointerrawupdate' in window;
 
@@ -183,6 +183,28 @@ function touchMid() {
   return [x / touches.size, y / touches.size];
 }
 
+function touchDist() {
+  const [a, b] = touches.values();
+  return Math.hypot(a[0] - b[0], a[1] - b[1]);
+}
+
+/* Due dita: il punto del foglio che stava tra le dita all'inizio resta tra le dita,
+   e lo zoom segue la loro distanza. Il ridisegno nitido aspetta la fine del gesto (settleZoom) */
+function startPinch() {
+  const [mx, my] = touchMid();
+  startPan('touch', mx, my);
+  S.gest.d0 = touchDist() || 1;
+  S.gest.z0 = S.zoom;
+  S.gest.wx = (mx - pan.x) / S.zoom;
+  S.gest.wy = (my - pan.y) / S.zoom;
+}
+
+function pinchMove() {
+  const g = S.gest, [mx, my] = touchMid();
+  setZoom(g.z0 * touchDist() / g.d0, mx, my);
+  setPan(mx - g.wx * S.zoom, my - g.wy * S.zoom);
+}
+
 /* Spostamento con tasto destro: i driver delle penne possono mandare la pressione da un puntatore
    e i movimenti da un altro, o perdere il rilascio. Quindi vale qualsiasi movimento, e qualsiasi rilascio chiude. */
 function panMove(e) {
@@ -202,7 +224,9 @@ function pointerEnd(e, cancelled) {
       if (touches.size === 1) {          // resta un dito: riparte da lì senza scatti
         const [x, y] = touchMid();
         S.gest.sx = x; S.gest.sy = y; S.gest.px = pan.x; S.gest.py = pan.y;
-      } else if (touches.size === 0) endPan();
+        S.gest.d0 = 0;
+      } else if (touches.size === 2) startPinch();
+      else if (touches.size === 0) endPan();
       return;
     }
   }
@@ -252,11 +276,16 @@ export function initInput() {
       if (touches.size === 2 && S.gest?.type === 'stroke') endStroke(null, false);
       if (touches.size === 2) {
         if (S.gest) endPan();
-        const [mx, my] = touchMid();
-        startPan('touch', mx, my);
+        startPinch();
         return;
       }
-      if (touches.size > 2) return;
+      if (touches.size > 2) {
+        if (S.gest?.id === 'touch') {               // tre dita: solo spostamento, dal punto medio nuovo
+          const [x, y] = touchMid();
+          Object.assign(S.gest, { d0: 0, sx: x, sy: y, px: pan.x, py: pan.y });
+        }
+        return;
+      }
       if (S.penSeen) {            // con una penna in uso le dita spostano il foglio e non scrivono
         startPan('touch', e.clientX, e.clientY);
         return;
@@ -292,6 +321,7 @@ export function initInput() {
     if (e.pointerType === 'touch' && touches.has(e.pointerId)) {
       touches.set(e.pointerId, [e.clientX, e.clientY]);
       if (S.gest?.type === 'pan' && S.gest.id === 'touch') {
+        if (S.gest.d0 && touches.size === 2) { pinchMove(); return; }
         const [x, y] = touches.size > 1 ? touchMid() : [e.clientX, e.clientY];
         setPan(S.gest.px + x - S.gest.sx, S.gest.py + y - S.gest.sy);
         return;
