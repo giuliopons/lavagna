@@ -20,7 +20,7 @@ Se hai esportato i tuoi lavori dalla lavagna di Microsoft in formato PDF puoi an
 - **Testo** scritto da tastiera, da spostare e modificare.
 - **Immagini** incollate dagli appunti o aperte da file.
 - **Selezione** di uno o più oggetti, da spostare, ingrandire o rimpicciolire, ruotare, portare davanti o dietro, copiare, tagliare ed eliminare.
-- **Foglio infinito** con zoom, schermo intero e vista pulita per gli screenshot.
+- **Foglio infinito** con zoom (anche con due dita su telefono e tablet), schermo intero e vista pulita per gli screenshot.
 - **Salvataggio automatico** nel browser e **salvataggio su file** `.json`, con il nome che scegli tu.
 - **I miei disegni:** colleghi una cartella del tuo computer e la lavagna salva lì e mostra tutti i fogli con l'anteprima, con rinomina, duplica e cestino. I file restano sul tuo PC, non su un server.
 - **Import dei PDF** esportati dalla lavagna Microsoft: tratti, testi e immagini tornano modificabili.
@@ -62,13 +62,13 @@ Con lo strumento selezione (V) trascina un riquadro attorno agli oggetti oppure 
 - **Spostare:** trascina dentro il riquadro.
 - **Ingrandire o rimpicciolire:** trascina il tondo nell'angolo in basso a destra.
 - **Ruotare:** premi appena attorno al tondo, dove il cursore diventa una freccia curva, e gira. Con Maiusc ruota a scatti di 15°.
-- **Davanti o dietro:** usa i due pulsanti sopra il riquadro, oppure PagSu e PagGiù.
-- **Eliminare:** Canc.
+- **Davanti o dietro:** usa i pulsanti con la freccia in su e in giù sopra il riquadro, oppure PagSu e PagGiù.
+- **Eliminare:** il cestino sopra il riquadro, accanto a davanti e dietro, oppure Canc. Il cestino funziona anche da telefono e tablet, dove non c'è la tastiera.
 
 ### Muoversi sul foglio
 
 - **Spostare il foglio:** trascina con il tasto destro, con il tasto centrale, con il tasto laterale della penna o tenendo premuta la barra spaziatrice. Su touch, trascina con due dita.
-- **Zoom:** con la rotella del mouse o con lo scorrimento della penna Wacom (zoom attorno al puntatore), con lo slider, oppure Ctrl++ e Ctrl+-. Ctrl+0 torna al 100%.
+- **Zoom:** con la rotella del mouse o con lo scorrimento della penna Wacom (zoom attorno al puntatore), con lo slider, oppure Ctrl++ e Ctrl+-. Ctrl+0 torna al 100%. Su telefono e tablet allarga o stringi due dita: il punto tra le dita resta fermo, e intanto puoi anche spostare il foglio.
 
 ### File
 
@@ -95,6 +95,7 @@ Il pannello si apre con l'ingranaggio nel vassoio o con il tasto I, e si chiude 
 | Ctrl+Z / Ctrl+Y | Annulla / Ripeti |
 | Ctrl+C / Ctrl+X / Ctrl+V | Copia / Taglia / Incolla, anche le immagini |
 | Canc | Elimina la selezione |
+| A | Avvia o ferma lo scorrimento delle linee tratteggiate |
 | PagSu / PagGiù | Porta la selezione davanti / dietro agli altri oggetti |
 | Ctrl+A | Seleziona tutto, con lo strumento selezione |
 | I | Impostazioni |
