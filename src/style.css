@@ -70,7 +70,7 @@ button, input { font: inherit; }
 #placing { position: absolute; pointer-events: auto; cursor: move; outline: calc(1.5px * var(--iz)) dashed #5f6b78; outline-offset: calc(2px * var(--iz)); touch-action: none; }
 #world #placing canvas { position: static; width: 100%; height: 100%; }
 #placeHandle, #selHandle { position: absolute; right: calc(-10px * var(--iz)); bottom: calc(-10px * var(--iz)); width: calc(20px * var(--iz)); height: calc(20px * var(--iz)); box-sizing: border-box; border-radius: 50%; background: var(--paper); border: calc(2px * var(--iz)) solid var(--tray); cursor: nwse-resize; touch-action: none; }
-/* Porta davanti e manda dietro, sopra l'angolo destro della selezione: misure costanti a ogni zoom */
+/* Porta davanti, manda dietro ed elimina, sopra l'angolo destro della selezione: misure costanti a ogni zoom */
 #selOrder { position: absolute; right: 0; bottom: calc(100% + 8px * var(--iz)); display: flex; gap: calc(4px * var(--iz)); }
 #selOrder button {
   display: grid; place-items: center; width: calc(28px * var(--iz)); height: calc(28px * var(--iz)); padding: 0; border: 0;

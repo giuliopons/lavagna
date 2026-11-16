@@ -45,12 +45,13 @@ export function setSel(list) {
   const handle = document.createElement('div');
   handle.id = 'selHandle';
   handle.title = 'Trascina per ingrandire o rimpicciolire';
-  // sopra il riquadro: porta davanti e manda dietro
+  // sopra il riquadro: porta davanti, manda dietro ed elimina (da mobile non c'è il tasto Canc)
   const order = document.createElement('div');
   order.id = 'selOrder';
   order.innerHTML =
     '<button type="button" data-order="front" title="Porta davanti (PagSu)" aria-label="Porta davanti"><svg viewBox="0 0 24 24"><path d="M5 4h14M12 20V8M7 13l5-5 5 5"/></svg></button>' +
-    '<button type="button" data-order="back" title="Manda dietro (PagGiù)" aria-label="Manda dietro"><svg viewBox="0 0 24 24"><path d="M5 20h14M12 4v12M7 11l5 5 5-5"/></svg></button>';
+    '<button type="button" data-order="back" title="Manda dietro (PagGiù)" aria-label="Manda dietro"><svg viewBox="0 0 24 24"><path d="M5 20h14M12 4v12M7 11l5 5 5-5"/></svg></button>' +
+    '<button type="button" data-order="del" title="Elimina (Canc)" aria-label="Elimina"><svg viewBox="0 0 24 24"><path d="M4 7h16M10 4h4M6 7l1 13h10l1-13M10 11v6M14 11v6"/></svg></button>';
   box.append(order, ring, handle);
   world.appendChild(box);
   S.sel = { ops: list, bb, box };
@@ -97,7 +98,11 @@ function inRect(o, r) {
 
 export function selDown(e) {
   const btn = e.target.closest?.('#selOrder button');
-  if (btn) { selOrder(btn.dataset.order === 'front'); return; }
+  if (btn) {
+    if (btn.dataset.order === 'del') selDelete();
+    else selOrder(btn.dataset.order === 'front');
+    return;
+  }
   try { board.setPointerCapture(e.pointerId); } catch {}
   if (S.sel && (e.target === S.sel.box || e.target.id === 'selHandle' || e.target.id === 'selRotate')) {
     const mode = e.target.id === 'selHandle' ? 'scale' : e.target.id === 'selRotate' ? 'rotate' : 'move';
