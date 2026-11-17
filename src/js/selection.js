@@ -7,6 +7,7 @@ import { hits, paint, refresh, refreshMany } from './layers.js';
 import { inBox, rotateOp, scaleOp, shiftOp } from './objects.js';
 import { S } from './state.js';
 import { shapePath } from './stroke.js';
+import { snapGrid } from './view.js';
 
 const hitCtx = document.createElement('canvas').getContext('2d');
 
@@ -176,6 +177,24 @@ function startFloat() {
   return c;
 }
 
+/* Punto che si aggancia alla griglia: la x e la y più piccole fra i punti dei tratti e gli angoli
+   di testi e immagini. Così le righe disegnate sui puntini restano sui puntini */
+function snapRef() {
+  let x = Infinity, y = Infinity;
+  for (const o of S.sel.ops) {
+    if (o.p) {
+      for (let i = 0; i < o.p.length; i += 3) {
+        if (o.p[i] < x) x = o.p[i];
+        if (o.p[i + 1] < y) y = o.p[i + 1];
+      }
+    } else {
+      x = Math.min(x, o.x);
+      y = Math.min(y, o.y);
+    }
+  }
+  return isFinite(x) && isFinite(y) ? [x, y] : [S.sel.bb[0], S.sel.bb[1]];
+}
+
 export function selDrag(e) {
   const g = S.gest;
   if (g.id !== e.pointerId || !S.sel) return;
@@ -206,6 +225,12 @@ export function selDrag(e) {
     S.sel.box.style.width = w * g.k + 'px';
     S.sel.box.style.height = h * g.k + 'px';
     return;
+  }
+  if (e.ctrlKey && S.showDots) {
+    // con Ctrl il punto di riferimento della selezione salta da un puntino all'altro
+    g.ref ??= snapRef();
+    g.dx = snapGrid(g.ref[0] + g.dx) - g.ref[0];
+    g.dy = snapGrid(g.ref[1] + g.dy) - g.ref[1];
   }
   const tf = `translate3d(${g.dx}px,${g.dy}px,0)`;
   g.float.style.transform = tf;

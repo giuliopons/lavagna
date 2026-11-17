@@ -435,6 +435,50 @@ test('con Ctrl il tratto a mano libera passa da un puntino all\'altro, solo con 
   noErrors(errors);
 });
 
+test('con Ctrl la selezione trascinata si aggancia ai puntini della griglia', async ({ page }) => {
+  const errors = await openBoard(page);
+  const [px, py] = await page.evaluate(() => {
+    const m = /translate3d\(([-\d.]+)px,\s*([-\d.]+)px/.exec(document.getElementById('world').style.transform);
+    return [+m[1], +m[2]];
+  });
+  const dot = (v, p) => p + 14 + 28 * Math.round((v - p - 14) / 28);
+  const x0 = dot(300, px), x1 = x0 + 28 * 6, gy = dot(300, py);
+
+  // riga sui puntini con Maiusc
+  await page.keyboard.down('Shift');
+  await line(page, x0 + 3, gy + 4, x1 - 3, gy - 4);
+  await page.keyboard.up('Shift');
+  await page.keyboard.press('v');
+  await line(page, x0 - 30, gy - 30, x1 + 30, gy + 30);
+  const box = await rect(page, 'selBox');
+  expect(box).not.toBeNull();
+
+  // trascinata di 40 × 45 px con Ctrl: finisce spostata di 28 × 56, di nuovo sui puntini
+  const sx = box.x + box.w / 2, sy = box.y + box.h / 2, w = x1 - x0 - 8;
+  const dragSel = async ctrl => {
+    await page.mouse.move(sx, sy);
+    await page.mouse.down();
+    if (ctrl) await page.keyboard.down('Control');
+    await page.mouse.move(sx + 40, sy + 45, { steps: 6 });
+    await page.mouse.up();
+    if (ctrl) await page.keyboard.up('Control');
+    await page.keyboard.press('p');   // via la selezione, il suo riquadro sporcherebbe la misura
+    await page.waitForTimeout(80);
+  };
+  await dragSel(true);
+  expect(await ink(page, x0 + 32, gy + 52, w, 8)).toBeGreaterThan(w * 1.5);
+  expect(await ink(page, x0 + 32, gy + 36, w, 10)).toBe(0);
+
+  // senza Ctrl segue la mano
+  await page.keyboard.press('Control+z');
+  await page.keyboard.press('v');
+  await line(page, x0 - 30, gy - 30, x1 + 30, gy + 30);
+  await dragSel(false);
+  expect(await ink(page, x0 + 44, gy + 41, w, 8)).toBeGreaterThan(w * 1.5);
+  expect(await ink(page, x0 + 44, gy + 52, w, 8)).toBeLessThan(w);
+  noErrors(errors);
+});
+
 // Punti d'inizio dei trattini lungo una riga di pixel dello schermo
 async function dashStarts(page, x, y, width) {
   const buf = await page.screenshot({ clip: { x, y, width, height: 1 } });
